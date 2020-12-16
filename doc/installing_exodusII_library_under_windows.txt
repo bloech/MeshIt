@@ -1,0 +1,100 @@
+0. Don't try (I tested for you and it does not work straight forward):
+	compiling libMesh including exodus
+	compiling seacas including exodus (https://github.com/gsjaardema/seacas)
+
+1. prerequisites
+	##### NETCDF ########################################################
+	Download NetCDF4 from https://www.unidata.ucar.edu/downloads/netcdf/.
+	I used version netCDF4.7.4-NC4-64.exe !
+	Install netCDF4.7.4-NC4-64.exe with the option: "Add netCDF to the system path for all users"
+	#####################################################################
+
+	##### CMAKE #########################################################
+	Download CMake from https://cmake.org/download/
+	I used version cmake-3.19.1-win64-x64.msi !
+	Install cmake-3.19.1-win64-x64.msi with the option: "Add cmake to the system path for all users"
+	#####################################################################
+
+	##### GIT ###########################################################
+	Download Git from https://git-scm.com/download/win
+	I used version Git-2.29.2.2-64-bit.exe !
+	Install Git-2.29.2.2-64-bit.exe with mainly the default options
+	#####################################################################
+
+	##### EVIRONMENT FOR BUILDING #######################################
+	I recommend either Visual Studio 2017 or MSYS2 with mingw-w64
+	#####################################################################
+
+2. compiling exodus II library
+	##### GET THE SOURCE ################################################
+	The latest package (Current version: 6.09.0-alt5) beside SEACAS is for alt linux
+	Get it by using git:
+	--> cd YOUR_FOLDER
+	--> git clone http://git.altlinux.org/gears/e/exodusii.git
+	#####################################################################
+
+	##### CONFIGURE #####################################################
+	Visual Studio does not have a Fortran compiler, therefore you have
+	to modify your CMakeLists.txt.
+	Open: YOUR_FOLDER\exodusii\exodus\CMakeLists.txt
+	Modify: PROJECT(ExodusII C CXX Fortran) --> PROJECT(ExodusII C CXX)
+
+	Open: CMake (cmake-gui)
+	Setting:
+	Where is the source code: YOUR_FOLDER/exodusii/exodus
+	Where to build the binaries: YOUR_FOLDER/exodusii/exodus/build
+
+	Click: "Configure"
+	Setting:
+	Specify the generator for this project: either "Visual Studio" or "MSYS Makefile"
+	Optional platform for generator: "x64" !!!
+
+	Note: You will have the following warning which can be ignored:
+	CMake Deprecation Warning at CMakeLists.txt:1 (cmake_minimum_required)
+
+	Note: You will have the following error:
+	CMake Error at cbind/CMakeLists.txt:7 (INCLUDE_DIRECTORIES)
+	Click "Configure" (once more) to solve this issue
+
+	If you see:
+	"Configuring done"
+	Click: "Generate"
+
+	If you see:
+	"Generating done"
+	Close: CMake (cmake-gui)
+	#####################################################################
+
+	##### BUILDING ######################################################
+	Open your project (e.g. Visual Studio)
+	YOUR_FOLDER\exodusii\exodus\build\ALL_BUILD.vcxproj
+
+	Select the following build options: Release x64
+	In the project explorer, right click on "exodus" and run "build"
+
+	Check if you build the exodus II library:
+	YOUR_FOLDER\exodusii\exodus\build\cbind\Release\exoIIv2c.lib
+	#####################################################################
+
+3. compiling MeshIt with exodus II library
+	##### GET THE SOURCE ################################################
+	Ask either bloech@gfz-potsdam.de or cacace@gfz-potsdam.de
+	#####################################################################
+
+	##### PREPARATION ###################################################
+	Create a copy of file `meshit.pri.tmpl` and save it as `meshit.pri`.
+	Set either the EXODUS_LIBMESH variable or the EXODUS_LIBRARY variable
+	to `true` if you want to enable the exodus export option.
+
+	In case the exodus export (EXODUS_LIBMESH) was enabled, define the path
+	to the root directory of a `libmesh` installation using variable LIBMESH
+	(a compatible `libmesh` library is usually already installed as part of the Moose framework).
+
+	In case the exodus export (EXODUS_EXODUS_LIBRARY) was enabled, define the path
+	to the root directory of a `netcdf` installation and 'exodusII' installation.
+	#####################################################################
+
+	##### BUILDING ######################################################
+	--> qmake meshit.pro
+	--> make/nmake/mingw32-make
+	#####################################################################
