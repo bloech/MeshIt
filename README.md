@@ -51,4 +51,4 @@ Building:
 
 Cite:
 *	https://doi.org/10.5281/zenodo.4327281
-*	Cacace, M., Blöcher, G. MeshIt—a software for three dimensional volumetric meshing of complex faulted reservoirs. Environ Earth Sci 74, 5191–5209 (2015). https://doi.org/10.1007/s12665-015-4537-x
+*	Cacace, M., Blöcher, G. MeshIt - a software for three dimensional volumetric meshing of complex faulted reservoirs. Environ Earth Sci 74, 5191–5209 (2015). https://doi.org/10.1007/s12665-015-4537-x
