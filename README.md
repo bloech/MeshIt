@@ -45,6 +45,10 @@ Preparation:
 *	In case the exodus export (EXODUS_LIBRARY) was enabled, define the path
 	to the root directory of a `netcdf` installation and 'exodusII' installation.
 
+* For macOS users, please check the version of macOS specified in the
+	`meshit.pro` file (line `QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.15`). By default, the version of macOS specified is 10.15 (macOS Catalina)
+
+
 Building:
 *  `qmake meshit.pro`
 *  `make/nmake/mingw32-make`

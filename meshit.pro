@@ -42,7 +42,7 @@ INCLUDEPATH += ./include
 
 # Mac
 macx {
-    # QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.7
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.15
 }
 
 # Linux
@@ -64,7 +64,7 @@ if($$EXODUS_LIBMESH) {
     INCLUDEPATH += . $$LIBMESH/include
     INCLUDEPATH += . $$LIBMESH/include/libmesh
     LIBS += -L$$LIBMESH/lib -lmesh_opt
-    QMAKE_LFLAGS += -Wl,-rpath,$$LIBMESH/lib
+    QMAKE_LFLAGS += -Wl,-rpath,$$LIBMESH
 }else:if($$EXODUS_LIBRARY) {
     INCLUDEPATH += . $$EXODUS_PATH/cbind/include
     LIBS += $$EXODUS_PATH/build/cbind/Release/exoIIv2c.lib
