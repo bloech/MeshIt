@@ -3408,7 +3408,7 @@ void C_Model::ExportVTU3D(){
 
 void C_Model::ExportEXODUS(QString borderIDs)
 {
-    int CPU_word_size = 0, IO_word_size = 0, exoid = 0, error = 0;
+    int CPU_word_size = 8, IO_word_size = 8, exoid = 0, error = 0;
 	tranformBackward();
 	calculateNumberWithMaterials();
 	int number = Mats.length();
@@ -3613,7 +3613,7 @@ void C_Model::EXODUS_element(C_Exodus *exo)
 	}
 }
 
-void C_Model::EXODUS_nodes(C_Exodus *exo)
+/*void C_Model::EXODUS_nodes(C_Exodus *exo)
 {
 	double x_trans = (this->min.x() + this->max.x()) * 0.5;
 	double y_trans = (this->min.y() + this->max.y()) * 0.5;
@@ -3631,9 +3631,9 @@ void C_Model::EXODUS_nodes(C_Exodus *exo)
 		exo->y[n] = tmp_y;
 		exo->node_num_map[n] = n + 1;
 	}
-}
+}*/
 
-/*void C_Model::EXODUS_nodes(C_Exodus *exo)
+void C_Model::EXODUS_nodes(C_Exodus *exo)
 {
 	for (int n = 0; n != exo->num_nodes; n++)
 	{
@@ -3642,7 +3642,7 @@ void C_Model::EXODUS_nodes(C_Exodus *exo)
 		exo->z[n] = Mesh->pointlist[n * 3 + 2];
 		exo->node_num_map[n] = n + 1;
 	}
-}*/
+}
 
 
 #endif

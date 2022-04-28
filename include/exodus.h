@@ -75,9 +75,9 @@ public:
 	int *side_list;
 	int *num_side_ss;
 	QList<int> *connections;
-	float *x;
-	float *y;
-	float *z;
+    double *x;
+    double *y;
+    double *z;
 	const char *coord_names[3];
 };
 

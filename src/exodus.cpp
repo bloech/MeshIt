@@ -81,9 +81,9 @@ C_Exodus::C_Exodus(int dim, int nodes, int elem, int surfaces, int num_materials
 	coord_names[2] = "zcoor";
 
 	num_side_ss = new int[num_surfaces];
-	x = new float[num_nodes];
-	y = new float[num_nodes];
-	z = new float[num_nodes];
+    x = new double[num_nodes];
+    y = new double[num_nodes];
+    z = new double[num_nodes];
 	node_num_map = new int[num_nodes];
 	elem_num_map = new int[num_elem];
 	num_nodes_per_elem = new int[num_elem_blk];
