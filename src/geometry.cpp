@@ -6729,7 +6729,102 @@ C_Mesh3D::~C_Mesh3D()
 
 void C_PLC::readPLCFile()
 {
-	bool tmp = true;
+	QFile file(fileName);
+	char *tmp_char = fileName.toLatin1().data();
+	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+		return;
+	QTextStream in(&file);
+	QString line;
+	while (!in.atEnd())
+	{
+		line = in.readLine().simplified();
+		if (line.startsWith("v"))
+		{
+			C_Vector3D N;
+			N.setX(line.section(" ", 1, 1).toDouble());
+			N.setY(line.section(" ", 2, 2).toDouble());
+			N.setZ(line.section(" ", 3, 4).toDouble());
+			Ns.append(N);
+		}
+		else if (line.startsWith("f"))
+		{
+			int counter = 0;
+			C_Triangle To;
+			int pos = line.section(" ", 1, 1).toInt() - 1;
+			To.Ns[0] = &Ns[pos];
+			To.Ns[0]->triID = counter++;
+			pos = line.section(" ", 2, 2).toInt() - 1;
+			To.Ns[1] = &Ns[pos];
+			To.Ns[1]->triID = counter++;
+			pos = line.section(" ", 3, 3).toInt() - 1;
+			To.Ns[2] = &Ns[pos];
+			To.Ns[2]->triID = counter++;
+			To.setNormalVector();
+			Ts.append(To);
+		}
+	}
+}
+
+void C_PLC::clearVertices()
+{
+	int dim = Ns.length();
+	double *x = new double[dim];
+	double *y = new double[dim];
+	double *z = new double[dim];
+	for (int s = 0; s != dim; s++)
+	{
+		x[s] = Ns[s].x();
+		y[s] = Ns[s].y();
+		z[s] = Ns[s].z();
+	}
+	quickSort(x, y, z, 0, dim - 1);
+	for (int s1 = 0; s1 != dim - 1; s1++)
+	{
+		if (x[s1] == x[s1 + 1])
+		{
+			if (y[s1] == y[s1 + 1])
+			{
+				if (z[s1] == z[s1 + 1])
+				{
+					for (int s2 = 0; s2 != Ns.length(); s2++)
+					{
+						if (x[s1] == Ns[s2].x())
+						{
+							if (y[s1] == Ns[s2].y())
+							{
+								if (z[s1] == Ns[s2].z())
+								{
+									this->Ns.removeAt(s2);
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	delete[] x;
+	delete[] y;
+	delete[] z;
+}
+
+void C_PLC::makeVertices()
+{
+	GLuint list = glGenLists(1);
+	glNewList(list, GL_COMPILE);
+	glDisable(GL_LIGHT0);
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, Cols.White);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, Cols.LightBlue);
+	glBegin(GL_POINTS);
+	for (int s = 0; s != Ns.length(); s++)
+		glVertex3f(Ns[s].x(), Ns[s].y(), Ns[s].z());
+	glEnd();
+
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, Cols.Grey);
+	glEnable(GL_LIGHT0);
+	glEndList();
+	listVertices = list;
 }
 
 void C_PLC::meshPLC(QString switches)

@@ -3566,7 +3566,8 @@ void MainWindow::Mesh()
 
 void MainWindow::readPLC()
 {
-	PLC.fileName = QFileDialog::getOpenFileName(this, tr("Select the PLC file to open"), PLC.filePath, tr("All Supported Files (*.stl *.dat *.txt *.csv);;VTK UnstructuredGrid Files (*.vtu);;XYZ Coordinate Files (*.dat *.txt *.csv *.xyz)"));
+	PLC.fileName = QFileDialog::getOpenFileName(this, tr("Select the PLC file to open"), PLC.filePath, tr("All Supported Files (*.obj)"));
+	QApplication::processEvents();
 	if (!PLC.fileName.isEmpty())
 	{
 		PLC.filePath = PLC.fileName.section("/", 0, -2);
@@ -3575,6 +3576,19 @@ void MainWindow::readPLC()
 		PLC.readPLCFile();
 		emit progress_append(">...finished");
 	}
+	finishedReadPLC();
+}
+
+void MainWindow::finishedReadPLC()
+{
+	// here we need to discuss if and how we would like to show the import data structure fromthe PLC
+	glWidget->resetView();
+
+	PLC.clearVertices();
+	PLC.makeVertices();
+	// PLC.makeFaces();
+
+	glWidget->updateGL();
 }
 
 void MainWindow::meshPLC()

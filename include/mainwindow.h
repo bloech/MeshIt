@@ -188,6 +188,7 @@ private slots:
 	void FinishedRead();
 	void threadFinishedPreMesh();
 	void threadFinishedMesh();
+	void finishedReadPLC();
 	// fill materials and tets
 	void callMakeMats();
 	void callMakeTets();

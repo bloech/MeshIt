@@ -673,6 +673,12 @@ public:
 	/// @brief Perform the final 3D mesh on the PLC
 	/// @param switches tetgen input functions
 	void meshPLC(QString switches);
+
+	C_Colors Cols;
+	void clearVertices();
+	bool drawVertices;
+	void makeVertices();
+	GLuint listVertices;
 };
 
 #endif // _GEOMETRY_H_
