@@ -3,7 +3,7 @@
  * Copyright (C) 2020
  *
  * Mauro Cacace (GFZ, cacace@gfz-potsdam.de),
- * Guido Blöcher (GFZ, bloech@gfz-potsdam.de),
+ * Guido Blï¿½cher (GFZ, bloech@gfz-potsdam.de),
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -32,26 +32,25 @@
 #include "mainwindow.h"
 #include "glwidget.h"
 
-
 C_Model Model;
+C_PLC PLC;
 
 QDateTime startdate, enddate;
 
-
 /********** Class AnimatedButton **********/
 AnimatedButton::AnimatedButton(const QString &text, const QString &icon,
-                               QWidget *parent) : QPushButton(text, parent)
+															 QWidget *parent) : QPushButton(text, parent)
 {
 	animation = new QMovie(icon);
 	connect(animation, SIGNAL(frameChanged(int)),
-	        this, SLOT(updateAnimation(int)));
+					this, SLOT(updateAnimation(int)));
 
 	connect(this, SIGNAL(clicked(bool)), this, SLOT(startAnimation()));
 }
 
 AnimatedButton::~AnimatedButton()
 {
-	if( animation )
+	if (animation)
 		delete animation;
 }
 
@@ -77,12 +76,14 @@ void AnimatedButton::stopAnimation()
 
 /********** Class C_TableViewDelegate **********/
 C_TableViewDelegate::C_TableViewDelegate(QObject *parent) : QItemDelegate(parent)
-{}
-
-QWidget 
-*C_TableViewDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &/*option*/, const QModelIndex &/*index*/) const
 {
-	//These parameters are hard-coded - users will need to adjust them according to their needs
+}
+
+QWidget
+		*
+		C_TableViewDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem & /*option*/, const QModelIndex & /*index*/) const
+{
+	// These parameters are hard-coded - users will need to adjust them according to their needs
 	QDoubleSpinBox *editor = new QDoubleSpinBox(parent);
 	editor->setMinimum(0);
 	editor->setMaximum(1e10);
@@ -110,7 +111,7 @@ MainWindow::MainWindow()
 	setCentralWidget(centralWidget);
 
 	glWidget = new GLWidget(this);
-	connect(glWidget,SIGNAL(SelectionWasMade(unsigned char, unsigned char, unsigned char)), this, SLOT(findSelection(unsigned char, unsigned char, unsigned char)));
+	connect(glWidget, SIGNAL(SelectionWasMade(unsigned char, unsigned char, unsigned char)), this, SLOT(findSelection(unsigned char, unsigned char, unsigned char)));
 
 	glWidgetArea = new QScrollArea;
 	glWidgetArea->setWidget(this->glWidget);
@@ -131,8 +132,7 @@ MainWindow::MainWindow()
 	readSettings();
 }
 
-void
-MainWindow::runThread(QString Attribute)
+void MainWindow::runThread(QString Attribute)
 {
 	if (Attribute == "PREMESHJOB")
 		this->preMeshJob();
@@ -142,8 +142,7 @@ MainWindow::runThread(QString Attribute)
 		this->materialSelectionJob();
 }
 
-void
-MainWindow::runThreadPool(QString Attribute, int Object1, int Object2, int currentStep, int totalSteps)
+void MainWindow::runThreadPool(QString Attribute, int Object1, int Object2, int currentStep, int totalSteps)
 {
 	//	convex hull calculation
 	if (Attribute == "CONVEXHULL")
@@ -172,7 +171,7 @@ MainWindow::runThreadPool(QString Attribute, int Object1, int Object2, int curre
 	// 2D triangulation (coarse and fine)
 	if (Attribute == "TRIANGLES")
 	{
-		
+
 		emit progress_replace("   > " + QString::number(100 * currentStep / totalSteps) + "% (" + QString::number(currentStep) + "/" + QString::number(totalSteps) + ") " + Model.Surfaces[Object1].Name + " (" + Model.Surfaces[Object1].Type + ")");
 		Model.Surfaces[Object1].rotate(true);
 		Model.Surfaces[Object1].calculate_triangles(false, Model.preMeshGradient);
@@ -225,8 +224,7 @@ MainWindow::runThreadPool(QString Attribute, int Object1, int Object2, int curre
 //	Protected functions	//
 // ******************** //
 
-void
-MainWindow::closeEvent(QCloseEvent *)
+void MainWindow::closeEvent(QCloseEvent *)
 {
 	this->writeSettings();
 
@@ -237,8 +235,7 @@ MainWindow::closeEvent(QCloseEvent *)
 	this->threadMesh->wait();
 }
 
-void
-MainWindow::keyPressEvent(QKeyEvent *event)
+void MainWindow::keyPressEvent(QKeyEvent *event)
 {
 	if (event->key() == Qt::Key_P)
 		if (glWidget->isPerspec())
@@ -261,21 +258,24 @@ MainWindow::keyPressEvent(QKeyEvent *event)
 	if (event->key() == Qt::Key_D)
 		glWidget->changeViewport(GLWidget::Z_ROT, -5);
 
-	if (event->key() == Qt::Key_M) {
+	if (event->key() == Qt::Key_M)
+	{
 		int index = rotationCombo->findData(RotationMode::MODEL);
-		if( index != -1 )
+		if (index != -1)
 			rotationCombo->setCurrentIndex(index);
 	}
 
-	if (event->key() == Qt::Key_O) {
+	if (event->key() == Qt::Key_O)
+	{
 		int index = rotationCombo->findData(RotationMode::OBJECT);
-		if( index != -1 )
+		if (index != -1)
 			rotationCombo->setCurrentIndex(index);
 	}
 
-	if (event->key() == Qt::Key_V) {
+	if (event->key() == Qt::Key_V)
+	{
 		int index = rotationCombo->findData(RotationMode::VIEWPORT);
-		if( index != -1 )
+		if (index != -1)
 			rotationCombo->setCurrentIndex(index);
 	}
 }
@@ -284,8 +284,7 @@ MainWindow::keyPressEvent(QKeyEvent *event)
 //	Private functions	//
 // ******************** //
 
-void
-MainWindow::createActions()
+void MainWindow::createActions()
 {
 	//	action - open
 	openAct = new QAction(QIcon(":/images/open.png"), tr("&Open..."), this);
@@ -364,6 +363,14 @@ MainWindow::createActions()
 	deleteSurfaceAct = new QAction(QIcon(":/images/delete_icon.png"), tr("Surfaces..."), this);
 	deleteSurfaceAct->setStatusTip(tr("Delete selected surfaces"));
 	connect(deleteSurfaceAct, SIGNAL(triggered()), this, SLOT(deleteSurface()));
+	//	action - import PLC object
+	importPLCAct = new QAction(tr("PLC..."), this);
+	importPLCAct->setStatusTip(tr("Import a Piecewise Linear Complex"));
+	connect(importPLCAct, SIGNAL(triggered()), this, SLOT(settingCallByMenu()));
+	// action - mesh PLC object
+	meshPLCAct = new QAction(tr("mesh PLC"), this);
+	meshPLCAct->setStatusTip(tr("Mesh the Piecewise Linear Complex"));
+	connect(meshPLCAct, SIGNAL(triggered()), this, SLOT(settingCallByMenu()));
 	//	action - select refinement
 	editRefinement = new QAction(tr("Refinement"), this);
 	editRefinement->setStatusTip(tr("Defines object specific refinement"));
@@ -372,13 +379,11 @@ MainWindow::createActions()
 	editInterpolation = new QAction(tr("Interpolation"), this);
 	editInterpolation->setStatusTip(tr("Defines Surface Interpolation Method"));
 	connect(editInterpolation, SIGNAL(triggered()), this, SLOT(settingCallByMenu()));
-
 	// action - change gradient
 	preMeshEditGradient = new QAction(tr("Gradient"), this);
 	preMeshEditGradient->setStatusTip(tr("Change gradient"));
 	preMeshEditGradient->setProperty("phase", "PreMesh");
 	connect(preMeshEditGradient, SIGNAL(triggered()), this, SLOT(settingCallByMenu()));
-
 	//	action - preMesh
 	editPreMesh = new QAction(tr("> Execute PreMesh <"), this);
 	editPreMesh->setFont(boldFont);
@@ -393,7 +398,6 @@ MainWindow::createActions()
 	meshEditGradient->setStatusTip(tr("Change gradient"));
 	meshEditGradient->setProperty("phase", "Mesh");
 	connect(meshEditGradient, SIGNAL(triggered()), this, SLOT(settingCallByMenu()));
-
 	//	action - set Material 1D-2D-3D
 	editMaterial1d = new QAction(QIcon(":/images/1D.png"), tr("1D"), this);
 	editMaterial1d->setStatusTip(tr("Changes the 1D materials"));
@@ -430,10 +434,9 @@ MainWindow::createActions()
 	connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
 }
 
-void
-MainWindow::createMenus()
+void MainWindow::createMenus()
 {
-//	First menu bar that recalls actions to open, save(As), import, export, add, delete and exit
+	//	First menu bar that recalls actions to open, save(As), import, export, add, delete and exit
 	fileMenu = menuBar()->addMenu(tr("&File"));
 	fileMenu->addAction(openAct);
 	fileMenu->addAction(saveAct);
@@ -464,7 +467,12 @@ MainWindow::createMenus()
 	fileMenuDelete->addAction(this->deleteSurfaceAct);
 	fileMenu->addSeparator();
 	fileMenu->addAction(exitAct);
-//	Second menu bar that recalls actions to edit material for 1D, 2D, and 3D cases
+	//  Third menu bar that recalls actions to import a PLC object and mesh it via direct tetgen call
+	meshPLCMenu = menuBar()->addMenu(tr("&mesh PLC"));
+	meshPLCMenu->addAction(this->importPLCAct);
+	meshPLCMenu->addAction(this->editTetgen);
+	meshPLCMenu->addAction(this->meshPLCAct);
+	//	Second menu bar that recalls actions to edit material for 1D, 2D, and 3D cases
 	editMenu = menuBar()->addMenu(tr("&Edit"));
 	this->editMenu->addAction(this->editRefinement);
 	this->editMenu->addAction(this->editInterpolation);
@@ -478,7 +486,7 @@ MainWindow::createMenus()
 	editMenu->addAction(this->meshEditGradient);
 	this->editMenu->addAction(this->editTetgen);
 	this->editMenu->addAction(this->editMesh);
-//	Third menu bar that recalls actions to view and print help message
+	//	Third menu bar that recalls actions to view and print help message
 	viewMenu = menuBar()->addMenu(tr("&View"));
 	viewMenu->addAction(this->viewAxisAct);
 	menuBar()->addSeparator();
@@ -486,16 +494,14 @@ MainWindow::createMenus()
 	helpMenu->addAction(aboutAct);
 }
 
-void
-MainWindow::createDockWindows()
+void MainWindow::createDockWindows()
 {
 	this->createStatusDock();
 	this->createViewDock();
 	this->createMeshQualityDock();
 }
 
-void
-MainWindow::createStatusDock()
+void MainWindow::createStatusDock()
 {
 	statusDock = new QDockWidget(tr("Status"), this);
 	statusDock->setObjectName(tr("StatusDock"));
@@ -506,14 +512,13 @@ MainWindow::createStatusDock()
 	connect(this, SIGNAL(progress_append(QString)), statusTE, SLOT(append(QString)));
 	connect(this, SIGNAL(progress_replace(QString)), this, SLOT(replace(QString)));
 	connect(&Model, SIGNAL(PrintError(QString)),
-	        this, SLOT(printErrorMessage(QString)));
+					this, SLOT(printErrorMessage(QString)));
 	statusDock->setWidget(this->statusTE);
 	addDockWidget(Qt::BottomDockWidgetArea, statusDock);
 	viewMenu->addAction(statusDock->toggleViewAction());
 }
 
-void
-MainWindow::createViewDock()
+void MainWindow::createViewDock()
 {
 	viewDock = new QDockWidget(tr("View"), this);
 	viewDock->setObjectName(tr("ViewDock"));
@@ -525,7 +530,7 @@ MainWindow::createViewDock()
 	viewTree->setHeaderHidden(true);
 
 	//	add unit widget tree to the View dock
-	QTreeWidgetItem * unitsTitle = new QTreeWidgetItem(viewTree);
+	QTreeWidgetItem *unitsTitle = new QTreeWidgetItem(viewTree);
 	unitsTitle->setText(0, "Units");
 	unitsTitle->setIcon(0, QIcon(":/images/units.png"));
 	unitsNames = new QTreeWidgetItem(unitsTitle);
@@ -558,9 +563,9 @@ MainWindow::createViewDock()
 	unitsIntersectionVertices->setText(0, "Vertices");
 	unitsIntersectionVertices->setCheckState(0, Qt::Unchecked);
 	connect(unitsNamesCB, SIGNAL(currentIndexChanged(QString)), this, SLOT(setUShowGBox(QString)));
-	connect(viewTree, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(setUMeshes()));
+	connect(viewTree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(setUMeshes()));
 	//	add fault tree widget to the View dock
-	QTreeWidgetItem * faultsTitle = new QTreeWidgetItem(viewTree);
+	QTreeWidgetItem *faultsTitle = new QTreeWidgetItem(viewTree);
 	faultsTitle->setText(0, "Faults");
 	faultsTitle->setIcon(0, QIcon(":/images/faults.png"));
 	faultsNames = new QTreeWidgetItem(faultsTitle);
@@ -593,9 +598,9 @@ MainWindow::createViewDock()
 	faultsIntersectionVertices->setText(0, "Vertices");
 	faultsIntersectionVertices->setCheckState(0, Qt::Unchecked);
 	connect(faultsNamesCB, SIGNAL(currentIndexChanged(QString)), this, SLOT(setFShowGBox(QString)));
-	connect(viewTree, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(setFMeshes()));
+	connect(viewTree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(setFMeshes()));
 	//	add border tree widget to the View dock
-	QTreeWidgetItem * bordersTitle = new QTreeWidgetItem(viewTree);
+	QTreeWidgetItem *bordersTitle = new QTreeWidgetItem(viewTree);
 	bordersTitle->setText(0, "Borders");
 	bordersTitle->setIcon(0, QIcon(":/images/borders.png"));
 	bordersNames = new QTreeWidgetItem(bordersTitle);
@@ -628,9 +633,9 @@ MainWindow::createViewDock()
 	bordersIntersectionVertices->setText(0, "Vertices");
 	bordersIntersectionVertices->setCheckState(0, Qt::Unchecked);
 	connect(bordersNamesCB, SIGNAL(currentIndexChanged(QString)), this, SLOT(setBShowGBox(QString)));
-	connect(viewTree, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(setBMeshes()));
+	connect(viewTree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(setBMeshes()));
 	//	add well tree widget to the View dock
-	QTreeWidgetItem * wellsTitle = new QTreeWidgetItem(viewTree);
+	QTreeWidgetItem *wellsTitle = new QTreeWidgetItem(viewTree);
 	wellsTitle->setText(0, "Wells");
 	wellsTitle->setIcon(0, QIcon(":/images/wells.png"));
 	wellsNames = new QTreeWidgetItem(wellsTitle);
@@ -654,7 +659,7 @@ MainWindow::createViewDock()
 	wellsIntersectionVertices->setText(0, "Intersections");
 	wellsIntersectionVertices->setCheckState(0, Qt::Unchecked);
 	connect(wellsNamesCB, SIGNAL(currentIndexChanged(QString)), this, SLOT(setWShowGBox(QString)));
-	connect(viewTree, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(setWMeshes()));
+	connect(viewTree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(setWMeshes()));
 	//	add 3D material tree widget to the View dock
 	matsTitle = new QTreeWidgetItem(viewTree);
 	matsTitle->setText(0, "Materials");
@@ -673,7 +678,7 @@ MainWindow::createViewDock()
 	matsEdges->setText(0, "Edges");
 	matsEdges->setCheckState(0, Qt::Unchecked);
 	connect(matsNamesCB, SIGNAL(currentIndexChanged(QString)), this, SLOT(setMShowGBox(QString)));
-	connect(viewTree, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(setMMeshes()));	
+	connect(viewTree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(setMMeshes()));
 	//	add meshView box to the View dock
 	viewVBox->addWidget(viewTree);
 	tetViewGBox = new QGroupBox(tr("MeshView"), viewWidget);
@@ -735,19 +740,19 @@ MainWindow::createViewDock()
 	rotationCombo = new QComboBox();
 	rotationCombo->insertItem(0, "Model", RotationMode::MODEL);
 	rotationCombo->setItemData(0, "Sets the rotation center to the center of "
-	                              "the entire model.\nKeyboard shortcut: M",
-	                           Qt::ToolTipRole);
+																"the entire model.\nKeyboard shortcut: M",
+														 Qt::ToolTipRole);
 	rotationCombo->insertItem(1, "Object", RotationMode::OBJECT);
 	rotationCombo->setItemData(1, "Sets the rotation center based on the "
-	                              "visible objects only.\nKeyboard shortcut: O",
-	                           Qt::ToolTipRole);
+																"visible objects only.\nKeyboard shortcut: O",
+														 Qt::ToolTipRole);
 	rotationCombo->insertItem(2, "Viewport", RotationMode::VIEWPORT);
 	rotationCombo->setItemData(2, "Sets the rotation center to the center of "
-	                              "the viewport.\nKeyboard shortcut: V",
-	                           Qt::ToolTipRole);
+																"the viewport.\nKeyboard shortcut: V",
+														 Qt::ToolTipRole);
 
 	connect(rotationCombo, SIGNAL(currentIndexChanged(int)),
-	        this, SLOT(onRotationCenterChange(int)));
+					this, SLOT(onRotationCenterChange(int)));
 
 	rotationLayout->addWidget(rotationCombo);
 	viewVBox->addWidget(rotationBox);
@@ -760,7 +765,7 @@ MainWindow::createViewDock()
 	sensitivitySlider->setRange(1, 100);
 	sensitivitySlider->setValue(glWidget->zoomSensitivity * 100);
 	connect(sensitivitySlider, SIGNAL(valueChanged(int)),
-	        this, SLOT(onSensitivityChange()));
+					this, SLOT(onSensitivityChange()));
 	viewVBox->addWidget(sensitivitySlider);
 
 	//	add info box to the View Dock
@@ -816,8 +821,7 @@ MainWindow::createViewDock()
 	viewMenu->addAction(viewDock->toggleViewAction());
 }
 
-void
-MainWindow::createMeshQualityDock()
+void MainWindow::createMeshQualityDock()
 {
 	meshDock = new QDockWidget(tr("Mesh Quality"), this);
 	meshDock->setObjectName(tr("MeshQualityDock"));
@@ -873,7 +877,7 @@ MainWindow::createMeshQualityDock()
 	this->meshMeshExecute->setFont(0, boldFont);
 	this->meshMeshExecute->setText(0, "> Execute Mesh <");
 
-	connect(meshTree, SIGNAL(itemClicked(QTreeWidgetItem*, int)), this, SLOT(settingCallByTree(QTreeWidgetItem*, int)));
+	connect(meshTree, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(settingCallByTree(QTreeWidgetItem *, int)));
 
 	this->meshVBox->addWidget(this->meshTree);
 
@@ -905,7 +909,7 @@ MainWindow::createMeshQualityDock()
 	meshGradientValue->setMaximum(9999.99);
 	meshGradientValue->setMinimum(0);
 	connect(meshGradientValue, SIGNAL(valueChanged(double)),
-	        this, SLOT(meshGradientUpdate(double)));
+					this, SLOT(meshGradientUpdate(double)));
 	meshGradientValue->setValue(Model.meshGradient);
 	meshGradientValue->setSingleStep(0.25);
 	meshGradientGrid->addWidget(meshGradientValue, 0, 0, 1, 1);
@@ -933,7 +937,7 @@ MainWindow::createMeshQualityDock()
 	preMeshGradientValue->setMaximum(9999.99);
 	preMeshGradientValue->setMinimum(0);
 	connect(preMeshGradientValue, SIGNAL(valueChanged(double)),
-	        this, SLOT(preMeshGradientUpdate(double)));
+					this, SLOT(preMeshGradientUpdate(double)));
 	preMeshGradientValue->setValue(Model.preMeshGradient);
 	preMeshGradientValue->setSingleStep(0.25);
 	preMeshGradientGrid->addWidget(preMeshGradientValue, 0, 0, 1, 1);
@@ -947,7 +951,7 @@ MainWindow::createMeshQualityDock()
 	this->selectionComponent = new QComboBox(this->selectionGBox);
 	connect(this->selectionComponent, SIGNAL(currentIndexChanged(QString)), this, SLOT(setSShowGBox(QString)));
 	connect(this->selectionComponent, SIGNAL(currentIndexChanged(QString)),
-	        this, SLOT(onHighlightingChange()));
+					this, SLOT(onHighlightingChange()));
 	this->selectionGrid->addWidget(this->selectionComponent, 0, 0, 1, 4);
 
 	this->selectionSingle = new QLabel(tr("Single"));
@@ -1113,31 +1117,31 @@ MainWindow::createMeshQualityDock()
 	selectionButtons.push_back(this->selectionInvert);
 
 	this->selectionMaterial = new AnimatedButton(
-	            "Material Selection", ":/images/loading.gif", selectionGBox);
+			"Material Selection", ":/images/loading.gif", selectionGBox);
 	connect(this->selectionMaterial, SIGNAL(clicked(bool)),
-	        this, SLOT(applyMaterialSelection()));
+					this, SLOT(applyMaterialSelection()));
 	this->selectionGrid->addWidget(this->selectionMaterial, 11, 0, 1, 4);
 
 	/* Add dropdown menu used to control the highlighting mode. */
 	highlightingCombo = new QComboBox(selectionGBox);
 	selectionGrid->addWidget(highlightingCombo, 12, 0, 1, 4);
 	highlightingCombo->addItem("No highlighting",
-	                           int(HighlightingMode::NONE));
+														 int(HighlightingMode::NONE));
 	highlightingCombo->addItem("Highlight unmarked",
-	                           int(HighlightingMode::COMPONENT));
+														 int(HighlightingMode::COMPONENT));
 	highlightingCombo->addItem("Highlight all unmarked",
-	                           int(HighlightingMode::ALL));
+														 int(HighlightingMode::ALL));
 	highlightingCombo->addItem("Highlight individual",
-	                           int(HighlightingMode::SINGLE));
+														 int(HighlightingMode::SINGLE));
 
 	connect(highlightingCombo, SIGNAL(currentIndexChanged(int)),
-	        this, SLOT(onHighlightingChange()));
+					this, SLOT(onHighlightingChange()));
 
 	/* Add table used to list missing selections. */
 	selectionTable = new QTableWidget(0, 3, selectionGBox);
 	selectionGrid->addWidget(selectionTable, 13, 0, 1, 4);
-	connect(selectionTable, SIGNAL(itemActivated(QTableWidgetItem*)),
-	        this, SLOT(tableClicked(QTableWidgetItem*)));
+	connect(selectionTable, SIGNAL(itemActivated(QTableWidgetItem *)),
+					this, SLOT(tableClicked(QTableWidgetItem *)));
 
 	selectionTable->verticalHeader()->hide();
 	selectionTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -1147,7 +1151,6 @@ MainWindow::createMeshQualityDock()
 
 	this->selectionGBox->setLayout(this->selectionGrid);
 	this->meshVBox->addWidget(this->selectionGBox);
-
 
 	// adding material options 1D group box
 	this->material1dGBox = new QGroupBox(tr("Material 1D"), meshWidget);
@@ -1240,13 +1243,13 @@ MainWindow::createMeshQualityDock()
 	errorLabel = new QLabel(errorGBox);
 	errorLayout->addWidget(errorLabel);
 	errorLayout->addWidget(new QLabel("List of involved triangles:",
-	                                  errorGBox));
+																		errorGBox));
 
 	/* Add table used to list self intersections. */
 	errorTable = new QTableWidget(0, 1, errorGBox);
 	errorLayout->addWidget(errorTable);
-	connect(errorTable, SIGNAL(itemActivated(QTableWidgetItem*)),
-	        this, SLOT(errorTableClicked(QTableWidgetItem*)));
+	connect(errorTable, SIGNAL(itemActivated(QTableWidgetItem *)),
+					this, SLOT(errorTableClicked(QTableWidgetItem *)));
 
 	errorTable->verticalHeader()->hide();
 	errorTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -1254,13 +1257,13 @@ MainWindow::createMeshQualityDock()
 	errorTable->setSelectionMode(QAbstractItemView::SingleSelection);
 
 	connect(&Model, SIGNAL(ErrorInfoChanged(QString)),
-	        this, SLOT(updateErrorInfo(QString)));
+					this, SLOT(updateErrorInfo(QString)));
 
 	QPushButton *errorClearButton = new QPushButton("Clear markers", errorGBox);
 	errorLayout->addWidget(errorClearButton);
 
 	connect(errorClearButton, SIGNAL(clicked(bool)),
-	        this, SLOT(clearErrorMarkers()));
+					this, SLOT(clearErrorMarkers()));
 
 	meshSpacer = new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding);
 	meshVBox->addItem(meshSpacer);
@@ -1270,24 +1273,21 @@ MainWindow::createMeshQualityDock()
 	viewMenu->addAction(meshDock->toggleViewAction());
 }
 
-void
-MainWindow::readSettings()
+void MainWindow::readSettings()
 {
 	QSettings settings("GFZ", "MeshIT");
 	restoreGeometry(settings.value("geometry").toByteArray());
 	restoreState(settings.value("windowState").toByteArray());
 }
 
-void
-MainWindow::writeSettings()
+void MainWindow::writeSettings()
 {
 	QSettings settings("GFZ", "MeshIT");
 	settings.setValue("geometry", saveGeometry());
 	settings.setValue("windowState", saveState());
 }
 
-void
-MainWindow::preMeshJob()
+void MainWindow::preMeshJob()
 {
 	clearErrorInfo();
 
@@ -1332,8 +1332,8 @@ MainWindow::preMeshJob()
 	emit progress_append(">Start calculating surface-surface intersections...\n");
 	Model.Intersections.clear();
 	currentStep = 0;
-	totalSteps = Model.Surfaces.length()*(Model.Surfaces.length() - 1) / 2;
-	if (totalSteps>0)
+	totalSteps = Model.Surfaces.length() * (Model.Surfaces.length() - 1) / 2;
+	if (totalSteps > 0)
 	{
 		for (int s1 = 0; s1 != Model.Surfaces.length() - 1; s1++)
 			for (int s2 = s1 + 1; s2 != Model.Surfaces.length(); s2++)
@@ -1347,8 +1347,8 @@ MainWindow::preMeshJob()
 	//	intersection: polyline-surface
 	emit progress_append(">Start calculating polyline-surface intersections...\n");
 	currentStep = 0;
-	totalSteps = Model.Polylines.length()*Model.Surfaces.length();
-	if (totalSteps>0)
+	totalSteps = Model.Polylines.length() * Model.Surfaces.length();
+	if (totalSteps > 0)
 	{
 		for (int p = 0; p != Model.Polylines.length(); p++)
 			for (int s = 0; s != Model.Surfaces.length(); s++)
@@ -1365,13 +1365,13 @@ MainWindow::preMeshJob()
 	emit progress_append(">Start calculating intersection triplepoints...\n");
 	Model.TPs.clear();
 	currentStep = 0;
-	totalSteps = Model.Intersections.length()*(Model.Intersections.length() - 1) / 2;
-	if (totalSteps>0)
+	totalSteps = Model.Intersections.length() * (Model.Intersections.length() - 1) / 2;
+	if (totalSteps > 0)
 	{
 		for (int i1 = 0; i1 != Model.Intersections.length() - 1; i1++)
 			for (int i2 = i1 + 1; i2 != Model.Intersections.length(); i2++)
 			{
-				C_Task * task = new C_Task(this, "INTERSECTION_TRIPLEPOINTS", i1, i2, ++currentStep, totalSteps);
+				C_Task *task = new C_Task(this, "INTERSECTION_TRIPLEPOINTS", i1, i2, ++currentStep, totalSteps);
 				QThreadPool::globalInstance()->start(task);
 			}
 		QThreadPool::globalInstance()->waitForDone();
@@ -1380,7 +1380,8 @@ MainWindow::preMeshJob()
 	emit progress_append(">...finished");
 
 	emit progress_append(">Start aligning Convex Hulls to Intersections...\n");
-	for (int s = 0; s != Model.Surfaces.length(); s++){
+	for (int s = 0; s != Model.Surfaces.length(); s++)
+	{
 		emit progress_replace("   >(" + QString::number(s + 1) + "/" + QString::number(Model.Surfaces.length()) + ") " + Model.Surfaces[s].Name + " (" + Model.Surfaces[s].Type + ")");
 		Model.Surfaces[s].alignIntersectionsToConvexHull();
 	}
@@ -1399,8 +1400,7 @@ MainWindow::preMeshJob()
 	emit progress_append(">elapsed Time: " + QString::number(startdate.msecsTo(enddate)) + "\n");
 }
 
-void
-MainWindow::MeshJob()
+void MainWindow::MeshJob()
 {
 	clearErrorInfo();
 
@@ -1463,7 +1463,7 @@ void MainWindow::materialSelectionJob()
 	for (int p = 0; p != Model.Polylines.length(); p++)
 	{
 		C_Task *task = new C_Task(this, "SEGMENTS_FINE", p, 0,
-		                          ++currentStep, totalSteps);
+															++currentStep, totalSteps);
 		QThreadPool::globalInstance()->start(task);
 	}
 	QThreadPool::globalInstance()->waitForDone();
@@ -1473,7 +1473,7 @@ void MainWindow::materialSelectionJob()
 	for (int s = 0; s != Model.Surfaces.length(); s++)
 	{
 		C_Task *task = new C_Task(this, "TRIANGLES_FINE", s, 0,
-		                          ++currentStep, totalSteps);
+															++currentStep, totalSteps);
 		QThreadPool::globalInstance()->start(task);
 	}
 	QThreadPool::globalInstance()->waitForDone();
@@ -1486,7 +1486,7 @@ void MainWindow::materialSelectionJob()
 	 * temporarily to find selections based on the defined materials. */
 	Model.calculate_tets("pAY");
 
-	if( ! Model.Mesh )
+	if (!Model.Mesh)
 	{
 		Model.deselect_all_constraints();
 		emit Model.PrintError("> Material selection failed\n");
@@ -1505,7 +1505,8 @@ void MainWindow::materialSelectionJob()
 
 void MainWindow::clearMesh()
 {
-	if( Model.Mesh ) {
+	if (Model.Mesh)
+	{
 		delete Model.Mesh;
 		Model.Mesh = 0;
 		Model.listTets = NULL;
@@ -1518,8 +1519,7 @@ void MainWindow::clearMesh()
 //	Private slots		//
 // ******************** //
 
-void
-MainWindow::open()
+void MainWindow::open()
 {
 	Model.FileNameTmp = QFileDialog::getOpenFileName(this, tr("Open MeshIt File"), Model.FilePath, tr("MeshIt File (*.pvd)"));
 	QApplication::processEvents();
@@ -1536,8 +1536,7 @@ MainWindow::open()
 	this->FinishedRead();
 }
 
-void
-MainWindow::save()
+void MainWindow::save()
 {
 	if (Model.FileNameModel.isEmpty())
 	{
@@ -1557,8 +1556,7 @@ MainWindow::save()
 	}
 }
 
-void
-MainWindow::saveAs()
+void MainWindow::saveAs()
 {
 	Model.FileNameTmp = QFileDialog::getSaveFileName(this, tr("Save As MeshIt File"), Model.FilePath, tr("MeshIt File (*.pvd)"));
 	if (!Model.FileNameTmp.isEmpty())
@@ -1572,8 +1570,7 @@ MainWindow::saveAs()
 	}
 }
 
-void
-MainWindow::saveScreen()
+void MainWindow::saveScreen()
 {
 	Model.FileNameTmp = QFileDialog::getSaveFileName(this, tr("Save Screenshot"), Model.FilePath, tr("Portable Network Graphics (*.png);;JPEG (*.jpg);;Bitmap (*.bmp);;Tagged Image File Format (*.tif)"));
 	if (!Model.FileNameTmp.isEmpty())
@@ -1586,8 +1583,7 @@ MainWindow::saveScreen()
 	}
 }
 
-void
-MainWindow::importGoCad()
+void MainWindow::importGoCad()
 {
 	Model.FileNameTmp = QFileDialog::getOpenFileName(this, tr("Open File"), Model.FilePath, tr("GoCad (*.gp)"));
 	if (!Model.FileNameTmp.isEmpty())
@@ -1602,8 +1598,7 @@ MainWindow::importGoCad()
 	this->FinishedRead();
 }
 
-void
-MainWindow::exportVTU3D()
+void MainWindow::exportVTU3D()
 {
 	Model.FileNameTmp = QFileDialog::getSaveFileName(this, tr("Export File"), Model.FilePath, tr("Paraview 3D Mesh (*.vtu)"));
 	if (!Model.FileNameTmp.isEmpty())
@@ -1616,8 +1611,7 @@ MainWindow::exportVTU3D()
 	}
 }
 
-void
-MainWindow::exportVTU2D()
+void MainWindow::exportVTU2D()
 {
 	QDialog *dialog = new QDialog(this);
 	dialog->setModal(true);
@@ -1695,8 +1689,7 @@ MainWindow::exportVTU2D()
 	}
 }
 
-void
-MainWindow::exportFeFlow()
+void MainWindow::exportFeFlow()
 {
 	Model.FileNameTmp = QFileDialog::getSaveFileName(this, tr("Export File"), Model.FilePath, tr("ASCII Interchange FEM format (*.fem)"));
 	if (!Model.FileNameTmp.isEmpty())
@@ -1709,8 +1702,7 @@ MainWindow::exportFeFlow()
 	}
 }
 
-void
-MainWindow::exportOGS()
+void MainWindow::exportOGS()
 {
 	Model.FileNameTmp = QFileDialog::getSaveFileName(this, tr("Export File"), Model.FilePath, tr("OpenGeoSys Mesh (*.msh)"));
 	if (!Model.FileNameTmp.isEmpty())
@@ -1723,8 +1715,7 @@ MainWindow::exportOGS()
 	}
 }
 
-void
-MainWindow::exportTIN()
+void MainWindow::exportTIN()
 {
 	QDialog *dialog = new QDialog(this);
 	dialog->setModal(true);
@@ -1803,8 +1794,7 @@ MainWindow::exportTIN()
 	}
 }
 
-void
-MainWindow::exportCOMSOL()
+void MainWindow::exportCOMSOL()
 {
 	Model.FileNameTmp = QFileDialog::getSaveFileName(this, tr("Export File"), Model.FilePath, tr("COMSOL Mesh (*.mphtxt)"));
 	if (!Model.FileNameTmp.isEmpty())
@@ -1817,8 +1807,7 @@ MainWindow::exportCOMSOL()
 	}
 }
 
-void
-MainWindow::exportABAQUS()
+void MainWindow::exportABAQUS()
 {
 	QDialog *dialog = new QDialog(this);
 	dialog->setModal(true);
@@ -1877,8 +1866,7 @@ MainWindow::exportABAQUS()
 	}
 }
 
-void
-MainWindow::exportEXODUS()
+void MainWindow::exportEXODUS()
 {
 #ifndef NOEXODUS
 	QDialog *dialog = new QDialog(this);
@@ -1904,7 +1892,7 @@ MainWindow::exportEXODUS()
 	angleLayout->addStretch();
 	QLabel *angleLabel = new QLabel("Rotate mesh counterclockwise by: ");
 	angleLayout->addWidget(angleLabel);
-	QDoubleSpinBox *angelValue= new QDoubleSpinBox();
+	QDoubleSpinBox *angelValue = new QDoubleSpinBox();
 	angelValue->setValue(Model.ExportRotationAngle);
 	angelValue->setRange(0, 360);
 	angelValue->setDecimals(1);
@@ -1946,8 +1934,7 @@ MainWindow::exportEXODUS()
 #endif
 }
 
-void
-MainWindow::addUnit()
+void MainWindow::addUnit()
 {
 	Model.FileNamesTmp = QFileDialog::getOpenFileNames(this, tr("Select one or more Unit Data files to open"), Model.FilePath, tr("All Supported Files (*.vtu *.dat *.txt *.csv);;VTK UnstructuredGrid Files (*.vtu);;XYZ Coordinate Files (*.dat *.txt *.csv *.xyz)"));
 	if (!Model.FileNamesTmp.isEmpty())
@@ -1963,8 +1950,7 @@ MainWindow::addUnit()
 	this->FinishedRead();
 }
 
-void
-MainWindow::addFault()
+void MainWindow::addFault()
 {
 	Model.FileNamesTmp = QFileDialog::getOpenFileNames(this, tr("Select one or more Fault Data files to open"), Model.FilePath, tr("All Supported Files (*.vtu *.dat *.txt *.csv);;VTK UnstructuredGrid Files (*.vtu);;XYZ Coordinate Files (*.dat *.txt *.csv)"));
 	if (!Model.FileNamesTmp.isEmpty())
@@ -1980,8 +1966,7 @@ MainWindow::addFault()
 	this->FinishedRead();
 }
 
-void
-MainWindow::addBorder()
+void MainWindow::addBorder()
 {
 	Model.FileNamesTmp = QFileDialog::getOpenFileNames(this, tr("Select one or more Border Data files to open"), Model.FilePath, tr("All Supported Files (*.vtu *.dat *.txt *.csv);;VTK UnstructuredGrid Files (*.vtu);;XYZ Coordinate Files (*.dat *.txt *.csv)"));
 	if (!Model.FileNamesTmp.isEmpty())
@@ -1997,8 +1982,7 @@ MainWindow::addBorder()
 	this->FinishedRead();
 }
 
-void
-MainWindow::addWell()
+void MainWindow::addWell()
 {
 	Model.FileNamesTmp = QFileDialog::getOpenFileNames(this, tr("Select one or more Well Data files to open"), Model.FilePath, tr("All Supported Files (*.vtu *.dat *.txt *.csv);;VTK UnstructuredGrid Files (*.vtu);;XYZ Coordinate Files (*.dat *.txt *.csv)"));
 	if (!Model.FileNamesTmp.isEmpty())
@@ -2014,8 +1998,7 @@ MainWindow::addWell()
 	this->FinishedRead();
 }
 
-void
-MainWindow::deleteSurface()
+void MainWindow::deleteSurface()
 {
 	QDialog *dialog = new QDialog(this);
 	dialog->setModal(true);
@@ -2064,20 +2047,18 @@ MainWindow::deleteSurface()
 		}
 }
 
-void
-MainWindow::about()
+void MainWindow::about()
 {
 	QMessageBox::about(this, tr("About MeshIT"),
-		tr("The tool <b>MeshIT</b> uses <a href='http://www.cs.cmu.edu/~quake/triangle.html' style='color: inherit; text-decoration: none;'><i>Triangle</i></a> "
-		"and <a href='http://tetgen.berlios.de' style='color: inherit; text-decoration: none;'><i>Tetgen</i></a> "
-		"to generate a quality tetrahedral mesh based on structural geological informations. "
-		"This procedure is fully automized and needs at least scattered data point as input!<br><br>"
-		"Main developers: <b>Mauro Cacace</b> and <b>Guido Bl&ouml;cher</b>.<br><br>"
-		"Some extensions were added by <a href='https://www.perfacct.eu' style='color: inherit; text-decoration: none;'><b>PERFACCT</b></a>."));
+										 tr("The tool <b>MeshIT</b> uses <a href='http://www.cs.cmu.edu/~quake/triangle.html' style='color: inherit; text-decoration: none;'><i>Triangle</i></a> "
+												"and <a href='http://tetgen.berlios.de' style='color: inherit; text-decoration: none;'><i>Tetgen</i></a> "
+												"to generate a quality tetrahedral mesh based on structural geological informations. "
+												"This procedure is fully automized and needs at least scattered data point as input!<br><br>"
+												"Main developers: <b>Mauro Cacace</b> and <b>Guido Bl&ouml;cher</b>.<br><br>"
+												"Some extensions were added by <a href='https://www.perfacct.eu' style='color: inherit; text-decoration: none;'><b>PERFACCT</b></a>."));
 }
 
-void
-MainWindow::reset()
+void MainWindow::reset()
 {
 	Model.Intersections.clear();
 	Model.Surfaces.clear();
@@ -2091,15 +2072,13 @@ MainWindow::reset()
 	this->FillNameCombos();
 }
 
-void
-MainWindow::viewAxis()
+void MainWindow::viewAxis()
 {
 	glWidget->drawAxis = this->viewAxisAct->isChecked();
 	glWidget->updateGL();
 }
 
-void
-MainWindow::FillNameCombos()
+void MainWindow::FillNameCombos()
 {
 	//	fill interpolation algotihm
 	if (Model.intAlgorythm == "IDW")
@@ -2148,21 +2127,19 @@ MainWindow::FillNameCombos()
 			this->wellsNamesCB->addItem(Model.Polylines[p].Name);
 			this->selectionComponent->addItem(QIcon(":/images/wells.png"), Model.Polylines[p].Name);
 		}
-	if (this->unitsNamesCB->count()>1)
+	if (this->unitsNamesCB->count() > 1)
 		this->unitsNamesCB->insertItem(0, "all");
-	if (this->faultsNamesCB->count()>1)
+	if (this->faultsNamesCB->count() > 1)
 		this->faultsNamesCB->insertItem(0, "all");
-	if (this->bordersNamesCB->count()>1)
+	if (this->bordersNamesCB->count() > 1)
 		this->bordersNamesCB->insertItem(0, "all");
-	if (this->wellsNamesCB->count()>1)
+	if (this->wellsNamesCB->count() > 1)
 		this->wellsNamesCB->insertItem(0, "all");
-	if (this->matsNamesCB->count()>1)
+	if (this->matsNamesCB->count() > 1)
 		this->matsNamesCB->insertItem(0, "all");
 }
 
-
-void
-MainWindow::setUShowGBox(QString Name)
+void MainWindow::setUShowGBox(QString Name)
 {
 	if (Name == "all")
 	{
@@ -2234,7 +2211,7 @@ MainWindow::setUShowGBox(QString Name)
 			if (Model.Surfaces[s].Name == Name && Model.Surfaces[s].Type == "UNIT")
 				i = s;
 
-		if (i>-1)
+		if (i > -1)
 		{
 			// initialize all
 			this->unitsScatteredDataPoints->setCheckState(0, Qt::Unchecked);
@@ -2265,8 +2242,7 @@ MainWindow::setUShowGBox(QString Name)
 	}
 }
 
-void
-MainWindow::setUMeshes()
+void MainWindow::setUMeshes()
 {
 	if (this->unitsNamesCB->currentText() == "all")
 	{
@@ -2311,7 +2287,7 @@ MainWindow::setUMeshes()
 		for (int s = 0; s != Model.Surfaces.length(); s++)
 			if (Model.Surfaces[s].Name == unitsNamesCB->currentText())
 				i = s;
-		if (i>-1)
+		if (i > -1)
 		{
 			// initialize all
 			Model.Surfaces[i].drawScatteredData = false;
@@ -2343,8 +2319,7 @@ MainWindow::setUMeshes()
 	glWidget->update();
 }
 
-void
-MainWindow::setFShowGBox(QString Name)
+void MainWindow::setFShowGBox(QString Name)
 {
 	if (Name == "all")
 	{
@@ -2415,7 +2390,7 @@ MainWindow::setFShowGBox(QString Name)
 		for (int s = 0; s != Model.Surfaces.length(); s++)
 			if (Model.Surfaces[s].Name == Name && Model.Surfaces[s].Type == "FAULT")
 				i = s;
-		if (i>-1)
+		if (i > -1)
 		{
 			// initialize all
 			this->faultsScatteredDataPoints->setCheckState(0, Qt::Unchecked);
@@ -2446,8 +2421,7 @@ MainWindow::setFShowGBox(QString Name)
 	}
 }
 
-void
-MainWindow::setFMeshes()
+void MainWindow::setFMeshes()
 {
 	if (this->faultsNamesCB->currentText() == "all")
 	{
@@ -2487,7 +2461,7 @@ MainWindow::setFMeshes()
 		for (int s = 0; s != Model.Surfaces.length(); s++)
 			if (Model.Surfaces[s].Name == faultsNamesCB->currentText())
 				i = s;
-		if (i>-1)
+		if (i > -1)
 		{
 			// initialize all
 			Model.Surfaces[i].drawScatteredData = false;
@@ -2519,8 +2493,7 @@ MainWindow::setFMeshes()
 	glWidget->update();
 }
 
-void
-MainWindow::setBShowGBox(QString Name)
+void MainWindow::setBShowGBox(QString Name)
 {
 	if (Name == "all")
 	{
@@ -2591,7 +2564,7 @@ MainWindow::setBShowGBox(QString Name)
 		for (int s = 0; s != Model.Surfaces.length(); s++)
 			if (Model.Surfaces[s].Name == Name && Model.Surfaces[s].Type == "BORDER")
 				i = s;
-		if (i>-1)
+		if (i > -1)
 		{
 			// initialize all
 			this->bordersScatteredDataPoints->setCheckState(0, Qt::Unchecked);
@@ -2617,13 +2590,12 @@ MainWindow::setBShowGBox(QString Name)
 				this->bordersIntersectionEdges->setCheckState(0, Qt::Checked);
 			// intersection vertices
 			if (Model.Surfaces[i].drawIntVertices)
-				this->bordersIntersectionVertices->setCheckState(0, Qt::Checked); 
+				this->bordersIntersectionVertices->setCheckState(0, Qt::Checked);
 		}
 	}
 }
 
-void
-MainWindow::setBMeshes()
+void MainWindow::setBMeshes()
 {
 	if (this->bordersNamesCB->currentText() == "all")
 	{
@@ -2663,7 +2635,7 @@ MainWindow::setBMeshes()
 		for (int s = 0; s != Model.Surfaces.length(); s++)
 			if (Model.Surfaces[s].Name == bordersNamesCB->currentText())
 				i = s;
-		if (i>-1)
+		if (i > -1)
 		{
 			// initialize all
 			Model.Surfaces[i].drawScatteredData = false;
@@ -2695,8 +2667,7 @@ MainWindow::setBMeshes()
 	glWidget->update();
 }
 
-void
-MainWindow::setWShowGBox(QString Name)
+void MainWindow::setWShowGBox(QString Name)
 {
 	if (Name == "all")
 	{
@@ -2748,7 +2719,7 @@ MainWindow::setWShowGBox(QString Name)
 		for (int p = 0; p != Model.Polylines.length(); p++)
 			if (Model.Polylines[p].Name == Name && Model.Polylines[p].Type == "WELL")
 				i = p;
-		if (i>-1)
+		if (i > -1)
 		{
 			// initialize all
 			this->wellsScatteredDataPoints->setCheckState(0, Qt::Unchecked);
@@ -2771,8 +2742,7 @@ MainWindow::setWShowGBox(QString Name)
 	}
 }
 
-void
-MainWindow::setWMeshes()
+void MainWindow::setWMeshes()
 {
 	if (this->wellsNamesCB->currentText() == "all")
 	{
@@ -2804,7 +2774,7 @@ MainWindow::setWMeshes()
 		for (int p = 0; p != Model.Polylines.length(); p++)
 			if (Model.Polylines[p].Name == wellsNamesCB->currentText())
 				i = p;
-		if (i>-1)
+		if (i > -1)
 		{
 			// initialize all
 			Model.Polylines[i].drawScatteredData = false;
@@ -2828,8 +2798,7 @@ MainWindow::setWMeshes()
 	glWidget->update();
 }
 
-void
-MainWindow::setMShowGBox(QString Name)
+void MainWindow::setMShowGBox(QString Name)
 {
 	if (Name == "all")
 	{
@@ -2867,7 +2836,7 @@ MainWindow::setMShowGBox(QString Name)
 	else
 	{
 		int i = Name.section(" ", 1, 1).toInt();
-		if (i<Model.Mats.length())
+		if (i < Model.Mats.length())
 		{
 			// initialize all materials
 			this->matsFaces->setCheckState(0, Qt::Unchecked);
@@ -2885,7 +2854,7 @@ MainWindow::setMShowGBox(QString Name)
 			for (int s = 0; s != Model.Surfaces.length(); s++)
 				if (Model.Surfaces[s].Name == Name.section("(", 1, 1).section(")", 0, 0) && Model.Surfaces[s].MaterialID >= 0)
 					i = s;
-			if (i>-1)
+			if (i > -1)
 			{
 				// initialize all materials
 				this->matsFaces->setCheckState(0, Qt::Unchecked);
@@ -2901,8 +2870,7 @@ MainWindow::setMShowGBox(QString Name)
 	}
 }
 
-void
-MainWindow::setMMeshes()
+void MainWindow::setMMeshes()
 {
 	if (this->matsNamesCB->currentText() == "all")
 	{
@@ -2935,7 +2903,7 @@ MainWindow::setMMeshes()
 	else
 	{
 		int i = matsNamesCB->currentText().section(" ", 1, 1).toInt();
-		if (i<Model.Mats.length())
+		if (i < Model.Mats.length())
 		{
 			// initial all materials
 			Model.Mats[i].drawMatFaces = false;
@@ -2953,7 +2921,7 @@ MainWindow::setMMeshes()
 			for (int s = 0; s != Model.Surfaces.length(); s++)
 				if (Model.Surfaces[s].Name == matsNamesCB->currentText().section("(", 1, 1).section(")", 0, 0))
 					i = s;
-			if (i>-1)
+			if (i > -1)
 			{
 				// initialize all materials
 				Model.Surfaces[i].drawMatFaces = false;
@@ -2973,7 +2941,7 @@ MainWindow::setMMeshes()
 void MainWindow::setSShowGBox(QString MeshName)
 {
 	// prevent showing of selection if the box has not focus
-	QComboBox *senderCB = qobject_cast<QComboBox*>(sender());
+	QComboBox *senderCB = qobject_cast<QComboBox *>(sender());
 	if (senderCB && !senderCB->isVisible())
 		MeshName = "DoNotShowAnything";
 
@@ -2990,23 +2958,25 @@ void MainWindow::setSShowGBox(QString MeshName)
 	glWidget->update();
 }
 
-void
-MainWindow::interpolationSetMethod(QString method)
+void MainWindow::interpolationSetMethod(QString method)
 {
 	Model.intAlgorythm = method;
 }
 
-void
-MainWindow::material3dFillValue(int Location)
+void MainWindow::material3dFillValue(int Location)
 {
 
 	if (Location != -1)
 	{
-		this->material3dXSlider->blockSignals(true);this->material3dYSlider->blockSignals(true);this->material3dZSlider->blockSignals(true);
-		this->material3dXValue->blockSignals(true);this->material3dYValue->blockSignals(true);this->material3dZValue->blockSignals(true);
-		this->material3dXSlider->setRange(256 * (Model.min.x() - Model.shift.x())*Model.scale, 256 * (Model.max.x() - Model.shift.x())*Model.scale);
-		this->material3dYSlider->setRange(256 * (Model.min.y() - Model.shift.y())*Model.scale, 256 * (Model.max.y() - Model.shift.y())*Model.scale);
-		this->material3dZSlider->setRange(256 * (Model.min.z() - Model.shift.z())*Model.scale, 256 * (Model.max.z() - Model.shift.z())*Model.scale);
+		this->material3dXSlider->blockSignals(true);
+		this->material3dYSlider->blockSignals(true);
+		this->material3dZSlider->blockSignals(true);
+		this->material3dXValue->blockSignals(true);
+		this->material3dYValue->blockSignals(true);
+		this->material3dZValue->blockSignals(true);
+		this->material3dXSlider->setRange(256 * (Model.min.x() - Model.shift.x()) * Model.scale, 256 * (Model.max.x() - Model.shift.x()) * Model.scale);
+		this->material3dYSlider->setRange(256 * (Model.min.y() - Model.shift.y()) * Model.scale, 256 * (Model.max.y() - Model.shift.y()) * Model.scale);
+		this->material3dZSlider->setRange(256 * (Model.min.z() - Model.shift.z()) * Model.scale, 256 * (Model.max.z() - Model.shift.z()) * Model.scale);
 		this->material3dXSlider->setSingleStep(1);
 		this->material3dYSlider->setSingleStep(1);
 		this->material3dZSlider->setSingleStep(1);
@@ -3016,8 +2986,12 @@ MainWindow::material3dFillValue(int Location)
 		this->material3dXValue->setSingleStep((Model.max.x() - Model.min.x()) / 512.0);
 		this->material3dYValue->setSingleStep((Model.max.y() - Model.min.y()) / 512.0);
 		this->material3dZValue->setSingleStep((Model.max.z() - Model.min.z()) / 512.0);
-		this->material3dXSlider->blockSignals(false); this->material3dYSlider->blockSignals(false); this->material3dZSlider->blockSignals(false);
-		this->material3dXValue->blockSignals(false); this->material3dYValue->blockSignals(false); this->material3dZValue->blockSignals(false);
+		this->material3dXSlider->blockSignals(false);
+		this->material3dYSlider->blockSignals(false);
+		this->material3dZSlider->blockSignals(false);
+		this->material3dXValue->blockSignals(false);
+		this->material3dYValue->blockSignals(false);
+		this->material3dZValue->blockSignals(false);
 		this->material3dXValue->setValue(Model.Mats[this->material3dList->currentRow()].Locations[Location].x() / Model.scale + Model.shift.x());
 		this->material3dYValue->setValue(Model.Mats[this->material3dList->currentRow()].Locations[Location].y() / Model.scale + Model.shift.y());
 		this->material3dZValue->setValue(Model.Mats[this->material3dList->currentRow()].Locations[Location].z() / Model.scale + Model.shift.z());
@@ -3027,30 +3001,35 @@ MainWindow::material3dFillValue(int Location)
 
 void MainWindow::material3dSetLocationFromDSpinBox(double value)
 {
-	if (this->material3dListLocation->currentRow() == -1) {
+	if (this->material3dListLocation->currentRow() == -1)
+	{
 		QMessageBox msgBox;
 		msgBox.setText("One material and one loacation must be selected to change the position!");
 		msgBox.exec();
 		return;
 	}
-	QDoubleSpinBox *senderDSB = qobject_cast<QDoubleSpinBox*>(sender());
-	if (senderDSB) {
-		if (senderDSB->property("location") == "X") {
-			double scaledValue = (value - Model.shift.x())*Model.scale;
+	QDoubleSpinBox *senderDSB = qobject_cast<QDoubleSpinBox *>(sender());
+	if (senderDSB)
+	{
+		if (senderDSB->property("location") == "X")
+		{
+			double scaledValue = (value - Model.shift.x()) * Model.scale;
 			Model.Mats[this->material3dList->currentRow()].Locations[this->material3dListLocation->currentRow()].setX(scaledValue);
 			this->material3dXSlider->blockSignals(true);
 			this->material3dXSlider->setValue(256 * scaledValue);
 			this->material3dXSlider->blockSignals(false);
 		}
-		else if (senderDSB->property("location") == "Y") {
-			double scaledValue = (value - Model.shift.y())*Model.scale;
+		else if (senderDSB->property("location") == "Y")
+		{
+			double scaledValue = (value - Model.shift.y()) * Model.scale;
 			Model.Mats[this->material3dList->currentRow()].Locations[this->material3dListLocation->currentRow()].setY(scaledValue);
 			this->material3dYSlider->blockSignals(true);
 			this->material3dYSlider->setValue(256 * scaledValue);
 			this->material3dYSlider->blockSignals(false);
 		}
-		else if (senderDSB->property("location") == "Z") {
-			double scaledValue = (value - Model.shift.z())*Model.scale;
+		else if (senderDSB->property("location") == "Z")
+		{
+			double scaledValue = (value - Model.shift.z()) * Model.scale;
 			Model.Mats[this->material3dList->currentRow()].Locations[this->material3dListLocation->currentRow()].setZ(scaledValue);
 			this->material3dZSlider->blockSignals(true);
 			this->material3dZSlider->setValue(256 * scaledValue);
@@ -3062,29 +3041,34 @@ void MainWindow::material3dSetLocationFromDSpinBox(double value)
 
 void MainWindow::material3dSetLocationFromSlider(int value)
 {
-	if (this->material3dListLocation->currentRow() == -1) {
+	if (this->material3dListLocation->currentRow() == -1)
+	{
 		QMessageBox msgBox;
 		msgBox.setText("One material and one loacation must be selected to change the position!");
 		msgBox.exec();
 		return;
 	}
-	QSlider *senderS = qobject_cast<QSlider*>(sender());
-	if (senderS) {
-		if (senderS->property("location") == "X") {
+	QSlider *senderS = qobject_cast<QSlider *>(sender());
+	if (senderS)
+	{
+		if (senderS->property("location") == "X")
+		{
 			double scaledValue = value / 256.0;
 			Model.Mats[this->material3dList->currentRow()].Locations[this->material3dListLocation->currentRow()].setX(scaledValue);
 			this->material3dXValue->blockSignals(true);
 			this->material3dXValue->setValue(scaledValue / Model.scale + Model.shift.x());
 			this->material3dXValue->blockSignals(false);
 		}
-		else if (senderS->property("location") == "Y") {
+		else if (senderS->property("location") == "Y")
+		{
 			double scaledValue = value / 256.0;
 			Model.Mats[this->material3dList->currentRow()].Locations[this->material3dListLocation->currentRow()].setY(scaledValue);
 			this->material3dYValue->blockSignals(true);
 			this->material3dYValue->setValue(scaledValue / Model.scale + Model.shift.y());
 			this->material3dYValue->blockSignals(false);
 		}
-		else if (senderS->property("location") == "Z") {
+		else if (senderS->property("location") == "Z")
+		{
 			double scaledValue = value / 256.0;
 			Model.Mats[this->material3dList->currentRow()].Locations[this->material3dListLocation->currentRow()].setZ(scaledValue);
 			this->material3dZValue->blockSignals(true);
@@ -3096,15 +3080,15 @@ void MainWindow::material3dSetLocationFromSlider(int value)
 }
 
 void MainWindow::interpolationFill()
-{}
+{
+}
 
 void MainWindow::ExportRotationAngelUpdate(double angel)
 {
 	Model.ExportRotationAngle = angel;
 }
 
-void
-MainWindow::refinementFill()
+void MainWindow::refinementFill()
 {
 	this->refinementTableWidget->clearContents();
 	this->refinementTableWidget->setColumnCount(2);
@@ -3126,7 +3110,7 @@ MainWindow::refinementFill()
 		this->refinementTableWidgetItemValue->setProperty("number", s);
 
 		connect(refinementTableWidgetItemValue, SIGNAL(valueChanged(double)), this, SLOT(refinementUpdate(double)));
-		
+
 		this->refinementTableWidgetItemValue->setDecimals(3);
 		this->refinementTableWidgetItemValue->setValue(Model.Surfaces[s].size / Model.scale);
 		this->refinementTableWidget->setCellWidget(s, 1, this->refinementTableWidgetItemValue);
@@ -3149,10 +3133,9 @@ MainWindow::refinementFill()
 	}
 }
 
-void
-MainWindow::refinementUpdate(double value)
+void MainWindow::refinementUpdate(double value)
 {
-	QDoubleSpinBox *senderDSB = qobject_cast<QDoubleSpinBox*>(sender());
+	QDoubleSpinBox *senderDSB = qobject_cast<QDoubleSpinBox *>(sender());
 	if (senderDSB)
 	{
 		if (senderDSB->property("type") == "Surface")
@@ -3162,20 +3145,17 @@ MainWindow::refinementUpdate(double value)
 	}
 }
 
-void
-MainWindow::preMeshGradientUpdate(double value)
+void MainWindow::preMeshGradientUpdate(double value)
 {
 	Model.preMeshGradient = value;
 }
 
-void
-MainWindow::meshGradientUpdate(double value)
+void MainWindow::meshGradientUpdate(double value)
 {
 	Model.meshGradient = value;
 }
 
-void
-MainWindow::material1dFill()
+void MainWindow::material1dFill()
 {
 	this->material1dList->clear();
 
@@ -3187,21 +3167,19 @@ MainWindow::material1dFill()
 		if (Model.Polylines[p].MaterialID >= 0)
 			this->material1dListItem->setCheckState(Qt::Checked);
 
-		connect(material1dList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(material1dUpdate(QListWidgetItem*)));
+		connect(material1dList, SIGNAL(itemChanged(QListWidgetItem *)), this, SLOT(material1dUpdate(QListWidgetItem *)));
 
 		this->material1dList->addItem(this->material1dListItem);
 	}
 }
 
-void
-MainWindow::material1dUpdate(QListWidgetItem *item)
+void MainWindow::material1dUpdate(QListWidgetItem *item)
 {
 	Model.Polylines[item->listWidget()->row(item)].MaterialID = item->checkState() - 1;
 	this->material3dIndexing();
 }
 
-void
-MainWindow::material2dFill()
+void MainWindow::material2dFill()
 {
 	this->material2dList->clear();
 
@@ -3217,23 +3195,22 @@ MainWindow::material2dFill()
 		if (Model.Surfaces[s].MaterialID >= 0)
 			this->material2dListItem->setCheckState(Qt::Checked);
 
-		connect(material2dList, SIGNAL(itemChanged(QListWidgetItem*)), this, SLOT(material2dUpdate(QListWidgetItem*)));
+		connect(material2dList, SIGNAL(itemChanged(QListWidgetItem *)), this, SLOT(material2dUpdate(QListWidgetItem *)));
 
 		this->material2dList->addItem(this->material2dListItem);
 	}
 }
 
-void
-MainWindow::material2dUpdate(QListWidgetItem *item)
+void MainWindow::material2dUpdate(QListWidgetItem *item)
 {
 	Model.Surfaces[item->listWidget()->row(item)].MaterialID = item->checkState() - 1;
 	this->material3dIndexing();
 }
 
-void
-MainWindow::material3dFill()
+void MainWindow::material3dFill()
 {
-	if (this->material3dList->currentRow() == -1) this->material3dList->blockSignals(true);
+	if (this->material3dList->currentRow() == -1)
+		this->material3dList->blockSignals(true);
 	Model.drawMats = true;
 	this->material3dList->clear();
 
@@ -3246,10 +3223,10 @@ MainWindow::material3dFill()
 	this->material3dList->blockSignals(false);
 }
 
-void
-MainWindow::material3dFillLocation(int Material)
+void MainWindow::material3dFillLocation(int Material)
 {
-	if (this->material3dListLocation->currentRow() == -1) this->material3dListLocation->blockSignals(true);
+	if (this->material3dListLocation->currentRow() == -1)
+		this->material3dListLocation->blockSignals(true);
 
 	Model.drawMats = true;
 	this->material3dListLocation->clear();
@@ -3265,8 +3242,7 @@ MainWindow::material3dFillLocation(int Material)
 	this->material3dListLocation->blockSignals(false);
 }
 
-void
-MainWindow::material3dAdd()
+void MainWindow::material3dAdd()
 {
 	C_Material *Material = new C_Material;
 	Model.Mats.append(*Material);
@@ -3275,8 +3251,7 @@ MainWindow::material3dAdd()
 	this->material3dList->setCurrentRow(Model.Mats.length() - 1);
 }
 
-void
-MainWindow::material3dRemove()
+void MainWindow::material3dRemove()
 {
 	int Material = this->material3dList->currentRow();
 	if (Material < 0)
@@ -3290,8 +3265,7 @@ MainWindow::material3dRemove()
 		this->material3dList->setCurrentRow(Material);
 }
 
-void
-MainWindow::material3dIndexing()
+void MainWindow::material3dIndexing()
 {
 	int Material = Model.Mats.length();
 	for (int s = 0; s != Model.Surfaces.length(); s++)
@@ -3302,8 +3276,7 @@ MainWindow::material3dIndexing()
 			Model.Polylines[p].MaterialID = Material++;
 }
 
-void
-MainWindow::material3dLocationAdd()
+void MainWindow::material3dLocationAdd()
 {
 	int Material = this->material3dList->currentRow();
 	if (Material < 0)
@@ -3313,8 +3286,7 @@ MainWindow::material3dLocationAdd()
 	this->material3dListLocation->setCurrentRow(Model.Mats[Material].Locations.length() - 1);
 }
 
-void
-MainWindow::material3dLocationRemove()
+void MainWindow::material3dLocationRemove()
 {
 	int Material = this->material3dList->currentRow();
 	int Location = this->material3dListLocation->currentRow();
@@ -3328,40 +3300,39 @@ MainWindow::material3dLocationRemove()
 		this->material3dListLocation->setCurrentRow(Location);
 }
 
-void
-MainWindow::selectionSetFlags(bool state)
+void MainWindow::selectionSetFlags(bool state)
 {
-	QPushButton *senderPB = qobject_cast<QPushButton*>(sender());
+	QPushButton *senderPB = qobject_cast<QPushButton *>(sender());
 
-	const QVariant& type = senderPB->property("type");
-	const QVariant& mode = senderPB->property("mode");
+	const QVariant &type = senderPB->property("type");
+	const QVariant &mode = senderPB->property("mode");
 
-	if( state )
+	if (state)
 	{
 		selectionState.tool = static_cast<SelectionTool>(type.toInt());
 		selectionState.mode = static_cast<SelectionMode>(mode.toInt());
 	}
-	else {
+	else
+	{
 		selectionState.reset();
 	}
 
 	glWidget->selectionState = selectionState;
 
-	std::list<QPushButton*>::const_iterator it;
-	for(it = selectionButtons.begin(); it != selectionButtons.end(); ++it)
+	std::list<QPushButton *>::const_iterator it;
+	for (it = selectionButtons.begin(); it != selectionButtons.end(); ++it)
 		(*it)->setChecked(false);
 
 	senderPB->setChecked(state);
 
-	if( selectionState != POLYGON )
+	if (selectionState != POLYGON)
 	{
 		glWidget->polygonSelection.reset();
 		glWidget->updateGL();
 	}
 }
 
-void
-MainWindow::selection(bool possible)
+void MainWindow::selection(bool possible)
 {
 	if (possible)
 	{
@@ -3380,8 +3351,7 @@ MainWindow::selection(bool possible)
 	glWidget->selectionState = selectionState;
 }
 
-void
-MainWindow::findSelection(unsigned char R, unsigned char G, unsigned char B)
+void MainWindow::findSelection(unsigned char R, unsigned char G, unsigned char B)
 {
 	for (int s1 = 0; s1 != Model.Surfaces.length(); s1++)
 	{
@@ -3389,9 +3359,9 @@ MainWindow::findSelection(unsigned char R, unsigned char G, unsigned char B)
 		{
 			for (int c1 = 0; c1 != Model.Surfaces[s1].Constraints.length(); c1++)
 			{
-				if (Model.Surfaces[s1].Constraints[c1].RGB[0] == R && Model.Surfaces[s1].Constraints[c1].RGB[1] == G &&Model.Surfaces[s1].Constraints[c1].RGB[2] == B)
+				if (Model.Surfaces[s1].Constraints[c1].RGB[0] == R && Model.Surfaces[s1].Constraints[c1].RGB[1] == G && Model.Surfaces[s1].Constraints[c1].RGB[2] == B)
 				{
-					C_Line& cs = Model.Surfaces[s1].Constraints[c1];
+					C_Line &cs = Model.Surfaces[s1].Constraints[c1];
 
 					if (selectionState == MARK)
 						Model.Surfaces[s1].Constraints[c1].Type = "SEGMENTS";
@@ -3401,14 +3371,14 @@ MainWindow::findSelection(unsigned char R, unsigned char G, unsigned char B)
 						Model.Surfaces[s1].Constraints[c1].Type = "HOLES";
 					else if (selectionState == INVERT)
 					{
-						if ( cs.Type == "SEGMENTS" || cs.Type == "HOLES" )
+						if (cs.Type == "SEGMENTS" || cs.Type == "HOLES")
 							cs.Type = "UNDEFINED";
-						else if( cs.Type == "UNDEFINED" )
+						else if (cs.Type == "UNDEFINED")
 							cs.Type = "SEGMENTS";
 					}
 
 					Model.Surfaces[s1].makeConstraints();
-					
+
 					for (int p = 0; p != Model.Polylines.length(); p++)
 						for (int c2 = 0; c2 != Model.Polylines[p].Constraints.length(); c2++)
 						{
@@ -3425,8 +3395,9 @@ MainWindow::findSelection(unsigned char R, unsigned char G, unsigned char B)
 							{
 								for (int c2 = 0; c2 != Model.Surfaces[s2].Constraints.length(); c2++)
 								{
-									if (((Model.Surfaces[s1].Constraints[c1].Type == "SEGMENTS" && Model.Surfaces[s2].Constraints[c2].Type != "HOLES") || 
-										Model.Surfaces[s1].Constraints[c1].Type == "UNDEFINED") && Model.Surfaces[s1].Constraints[c1].IsIdenticallyWith(Model.Surfaces[s2].Constraints[c2]))
+									if (((Model.Surfaces[s1].Constraints[c1].Type == "SEGMENTS" && Model.Surfaces[s2].Constraints[c2].Type != "HOLES") ||
+											 Model.Surfaces[s1].Constraints[c1].Type == "UNDEFINED") &&
+											Model.Surfaces[s1].Constraints[c1].IsIdenticallyWith(Model.Surfaces[s2].Constraints[c2]))
 									{
 										Model.Surfaces[s2].Constraints[c2].Type = Model.Surfaces[s1].Constraints[c1].Type;
 										Model.Surfaces[s2].makeConstraints();
@@ -3445,24 +3416,24 @@ MainWindow::findSelection(unsigned char R, unsigned char G, unsigned char B)
 		{
 			for (int c1 = 0; c1 != Model.Polylines[p].Constraints.length(); c1++)
 			{
-				if (Model.Polylines[p].Constraints[c1].RGB[0] == R && Model.Polylines[p].Constraints[c1].RGB[1] == G &&Model.Polylines[p].Constraints[c1].RGB[2] == B)
+				if (Model.Polylines[p].Constraints[c1].RGB[0] == R && Model.Polylines[p].Constraints[c1].RGB[1] == G && Model.Polylines[p].Constraints[c1].RGB[2] == B)
 				{
-					C_Line& cs = Model.Polylines[p].Constraints[c1];
+					C_Line &cs = Model.Polylines[p].Constraints[c1];
 
 					if (selectionState == MARK)
 						Model.Polylines[p].Constraints[c1].Type = "SEGMENTS";
 					else if (selectionState == UNMARK)
 						Model.Polylines[p].Constraints[c1].Type = "UNDEFINED";
-					else if( selectionState == INVERT )
+					else if (selectionState == INVERT)
 					{
-						if ( cs.Type == "SEGMENTS" || cs.Type == "HOLES" )
+						if (cs.Type == "SEGMENTS" || cs.Type == "HOLES")
 							cs.Type = "UNDEFINED";
-						else if( cs.Type == "UNDEFINED" )
+						else if (cs.Type == "UNDEFINED")
 							cs.Type = "SEGMENTS";
 					}
 
 					Model.Polylines[p].makeConstraints();
-					
+
 					for (int s = 0; s != Model.Surfaces.length(); s++)
 						for (int c2 = 0; c2 != Model.Surfaces[s].Constraints.length(); c2++)
 						{
@@ -3479,26 +3450,23 @@ MainWindow::findSelection(unsigned char R, unsigned char G, unsigned char B)
 	}
 }
 
-void
-MainWindow::settingCallByMenu()
+void MainWindow::settingCallByMenu()
 {
-	QAction *senderAction = qobject_cast<QAction*>(sender());
+	QAction *senderAction = qobject_cast<QAction *>(sender());
 	QString phase = senderAction->property("phase").toString();
 	this->settingShow(phase, senderAction->text());
 }
 
-void
-MainWindow::settingCallByTree(QTreeWidgetItem * item, int column)
+void MainWindow::settingCallByTree(QTreeWidgetItem *item, int column)
 {
 	QString phase;
 	QTreeWidgetItem *parent = item->parent();
-	if( parent )
+	if (parent)
 		phase = parent->text(0);
 	this->settingShow(phase, item->text(column));
 }
 
-void
-MainWindow::settingShow(QString phase, QString setting)
+void MainWindow::settingShow(QString phase, QString setting)
 {
 	QRect treeWidgetGeometry;
 
@@ -3537,7 +3505,7 @@ MainWindow::settingShow(QString phase, QString setting)
 		if (setting == "Gradient" && phase == "PreMesh")
 			this->preMeshGradientGBox->setHidden(false);
 
-		bool showSelection = setting == "Selection";
+		bool showSelection = (setting == "Selection");
 		this->selectionGBox->setHidden(!showSelection);
 		this->selection(showSelection);
 
@@ -3567,11 +3535,16 @@ MainWindow::settingShow(QString phase, QString setting)
 			this->preMesh();
 		if (setting == "> Execute Mesh <")
 			this->Mesh();
+
+		if (setting == "PLC...")
+			this->readPLC();
+
+		if (setting == "mesh PLC")
+			this->meshPLC();
 	}
 }
 
-void
-MainWindow::preMesh()
+void MainWindow::preMesh()
 {
 	if (!this->threadPreMesh->isRunning())
 	{
@@ -3581,8 +3554,7 @@ MainWindow::preMesh()
 	}
 }
 
-void
-MainWindow::Mesh()
+void MainWindow::Mesh()
 {
 	if (!this->threadMesh->isRunning())
 	{
@@ -3590,6 +3562,26 @@ MainWindow::Mesh()
 		this->threadMesh->setAttribute("MESHJOB");
 		this->threadMesh->start();
 	}
+}
+
+void MainWindow::readPLC()
+{
+	PLC.fileName = QFileDialog::getOpenFileName(this, tr("Select the PLC file to open"), PLC.filePath, tr("All Supported Files (*.stl *.dat *.txt *.csv);;VTK UnstructuredGrid Files (*.vtu);;XYZ Coordinate Files (*.dat *.txt *.csv *.xyz)"));
+	if (!PLC.fileName.isEmpty())
+	{
+		PLC.filePath = PLC.fileName.section("/", 0, -2);
+		emit progress_append(">Start reading PLC file " + PLC.fileName + "...");
+		QApplication::processEvents();
+		PLC.readPLCFile();
+		emit progress_append(">...finished");
+	}
+}
+
+void MainWindow::meshPLC()
+{
+	emit progress_append(">Start tetrahedralization...");
+	PLC.meshPLC(this->tetgenLineEdit->text());
+	emit progress_append(">...finished");
 }
 
 void MainWindow::applyMaterialSelection()
@@ -3608,35 +3600,37 @@ void MainWindow::fillTable()
 	selectionTable->setSortingEnabled(false);
 
 	QStringList headerLabels;
-	headerLabels << "Component" << "Length" << "Selected\nneighbors";
+	headerLabels << "Component"
+							 << "Length"
+							 << "Selected\nneighbors";
 	selectionTable->setHorizontalHeaderLabels(headerLabels);
 	selectionTable->horizontalHeader()->setStretchLastSection(true);
 	selectionTable->horizontalHeader()->setMinimumSectionSize(125);
 
 	int row = 0;
-	for(int s = 0; s != Model.Surfaces.length(); s++)
+	for (int s = 0; s != Model.Surfaces.length(); s++)
 	{
-		C_Surface& surface = Model.Surfaces[s];
-		for(int i = 0; i < surface.Constraints.length(); i++)
+		C_Surface &surface = Model.Surfaces[s];
+		for (int i = 0; i < surface.Constraints.length(); i++)
 		{
-			C_Line& line = surface.Constraints[i];
-			if( line.Type != "UNDEFINED" )
+			C_Line &line = surface.Constraints[i];
+			if (line.Type != "UNDEFINED")
 				continue;
 
 			double pathLength = 0;
-			for(int j = 0; j < line.Ns.size() - 1; ++j)
-				pathLength += length(line.Ns[j+1] - line.Ns[j]);
+			for (int j = 0; j < line.Ns.size() - 1; ++j)
+				pathLength += length(line.Ns[j + 1] - line.Ns[j]);
 
 			int numNeighbors = 0;
-			for(int k = 0; k < surface.Constraints.length(); k++)
+			for (int k = 0; k < surface.Constraints.length(); k++)
 			{
 				double T = 1e-10;
-				C_Line& other = surface.Constraints[k];
-				if( ( line.Ns.first().equals(other.Ns.first(), T) ||
-				      line.Ns.first().equals(other.Ns.last(), T)  ||
-				      line.Ns.last().equals(other.Ns.first(), T)  ||
-				      line.Ns.last().equals(other.Ns.last(), T)
-				    ) && other.Type != "UNDEFINED" )
+				C_Line &other = surface.Constraints[k];
+				if ((line.Ns.first().equals(other.Ns.first(), T) ||
+						 line.Ns.first().equals(other.Ns.last(), T) ||
+						 line.Ns.last().equals(other.Ns.first(), T) ||
+						 line.Ns.last().equals(other.Ns.last(), T)) &&
+						other.Type != "UNDEFINED")
 					numNeighbors++;
 			}
 
@@ -3646,7 +3640,7 @@ void MainWindow::fillTable()
 			QVariant data;
 
 			item = new QTableWidgetItem(surface.Name);
-			data.setValue(static_cast<void*>(&line));
+			data.setValue(static_cast<void *>(&line));
 			item->setData(Qt::UserRole, data);
 			selectionTable->setItem(row, 0, item);
 
@@ -3677,17 +3671,18 @@ void MainWindow::onHighlightingChange()
 	QVariant data = highlightingCombo->itemData(index);
 	mode = static_cast<HighlightingMode>(data.toInt(&isValid));
 
-	if( ! isValid )
+	if (!isValid)
 		return;
 
 	bool refillTable = !selectionTable->isVisible();
 
 	Model.listMarkers = NULL;
 
-	if( mode != HighlightingMode::SINGLE )
+	if (mode != HighlightingMode::SINGLE)
 		selectionTable->hide();
 
-	switch(mode) {
+	switch (mode)
+	{
 	case HighlightingMode::NONE:
 		break;
 	case HighlightingMode::COMPONENT:
@@ -3697,7 +3692,8 @@ void MainWindow::onHighlightingChange()
 		Model.makeMarkers();
 		break;
 	case HighlightingMode::SINGLE:
-		if( refillTable ) fillTable();
+		if (refillTable)
+			fillTable();
 		selectionTable->show();
 		break;
 	}
@@ -3710,7 +3706,7 @@ void MainWindow::tableClicked(QTableWidgetItem *item)
 	int row = item->row();
 
 	QVariant vline = selectionTable->item(row, 0)->data(Qt::UserRole);
-	C_Line* line = static_cast<C_Line*>(vline.value<void*>());
+	C_Line *line = static_cast<C_Line *>(vline.value<void *>());
 
 	QString sname = selectionTable->item(row, 0)->data(Qt::DisplayRole).toString();
 	double length = selectionTable->item(row, 1)->data(Qt::DisplayRole).toDouble();
@@ -3718,17 +3714,17 @@ void MainWindow::tableClicked(QTableWidgetItem *item)
 	int idx = selectionComponent->findText(sname);
 	selectionComponent->setCurrentIndex(idx);
 
-	C_Surface* surface = Model.findSurface(sname);
-	if( !surface )
+	C_Surface *surface = Model.findSurface(sname);
+	if (!surface)
 		return;
 
-	for(int s = 0; s < Model.Surfaces.length(); ++s)
+	for (int s = 0; s < Model.Surfaces.length(); ++s)
 		Model.Surfaces[s].makeConstraints();
 
 	surface->calculate_normal_vector();
 
 	C_Vector3D center(0, 0, 0);
-	for(int i = 0; i < line->Ns.size(); ++i)
+	for (int i = 0; i < line->Ns.size(); ++i)
 		center += line->Ns[i];
 
 	center /= line->Ns.size();
@@ -3754,7 +3750,7 @@ void MainWindow::updateErrorInfo(QString message)
 
 	clearErrorMarkers();
 
-	if( show )
+	if (show)
 	{
 		errorWidget->treeWidget()->selectionModel()->clearSelection();
 		errorWidget->treeWidget()->collapseAll();
@@ -3788,18 +3784,18 @@ void MainWindow::fillErrorTable()
 	int row = 0;
 
 	QList<SelfIntersection>::iterator it;
-	for(it = Model.selfIntersections.begin();
-	    it != Model.selfIntersections.end(); ++it)
+	for (it = Model.selfIntersections.begin();
+			 it != Model.selfIntersections.end(); ++it)
 	{
-		QSet<const C_Surface*>::const_iterator sit;
-		for(sit = it->second.cbegin(); sit != it->second.cend(); ++sit)
+		QSet<const C_Surface *>::const_iterator sit;
+		for (sit = it->second.cbegin(); sit != it->second.cend(); ++sit)
 		{
 			/* Add table entry. */
 			errorTable->insertRow(row);
 
 			QVariant data;
 			QTableWidgetItem *item = new QTableWidgetItem((*sit)->Name);
-			data.setValue(static_cast<void*>(&it->first));
+			data.setValue(static_cast<void *>(&it->first));
 			item->setData(Qt::UserRole, data);
 			errorTable->setItem(row, 0, item);
 
@@ -3816,18 +3812,18 @@ void MainWindow::errorTableClicked(QTableWidgetItem *item)
 	int row = item->row();
 
 	QVariant vtri = errorTable->item(row, 0)->data(Qt::UserRole);
-	C_Triangle* tri = static_cast<C_Triangle*>(vtri.value<void*>());
+	C_Triangle *tri = static_cast<C_Triangle *>(vtri.value<void *>());
 
 	QString sname = errorTable->item(row, 0)->data(Qt::DisplayRole).toString();
 
 	int idx = selectionComponent->findText(sname);
 	selectionComponent->setCurrentIndex(idx);
 
-	C_Surface* surface = Model.findSurface(sname);
-	if( !surface )
+	C_Surface *surface = Model.findSurface(sname);
+	if (!surface)
 		return;
 
-	for(int s = 0; s < Model.Surfaces.length(); ++s)
+	for (int s = 0; s < Model.Surfaces.length(); ++s)
 	{
 		Model.Surfaces[s].makeConstraints();
 		Model.Surfaces[s].drawConstraints = false;
@@ -3843,15 +3839,15 @@ void MainWindow::errorTableClicked(QTableWidgetItem *item)
 	line.Ns.append(*tri->Ns[0]);
 
 	C_Vector3D center(0, 0, 0);
-	for(int i = 0; i < line.Ns.size(); ++i)
+	for (int i = 0; i < line.Ns.size(); ++i)
 		center += line.Ns[i];
 
 	center /= line.Ns.size();
 	center *= -1;
 
 	double lineLength = 0;
-	for(int j = 0; j < line.Ns.size() - 1; ++j)
-		lineLength += length(line.Ns[j+1] - line.Ns[j]);
+	for (int j = 0; j < line.Ns.size() - 1; ++j)
+		lineLength += length(line.Ns[j + 1] - line.Ns[j]);
 
 	Model.makeErrorMarkers(line);
 
@@ -3863,15 +3859,14 @@ void MainWindow::errorTableClicked(QTableWidgetItem *item)
 
 void MainWindow::clearErrorMarkers()
 {
-	for(int i = 0; i < Model.Surfaces.length(); ++i)
+	for (int i = 0; i < Model.Surfaces.length(); ++i)
 		Model.Surfaces[i].drawConstraints = false;
 
 	Model.listErrorMarkers = NULL;
 	glWidget->updateGL();
 }
 
-void
-MainWindow::FinishedRead()
+void MainWindow::FinishedRead()
 {
 	glWidget->resetView();
 	// surfaces
@@ -3918,8 +3913,7 @@ MainWindow::FinishedRead()
 	glWidget->updateGL();
 }
 
-void
-MainWindow::threadFinishedPreMesh()
+void MainWindow::threadFinishedPreMesh()
 {
 	// surfaces
 	for (int s = 0; s != Model.Surfaces.length(); s++)
@@ -3944,8 +3938,7 @@ MainWindow::threadFinishedPreMesh()
 	glWidget->updateGL();
 }
 
-void
-MainWindow::threadFinishedMesh()
+void MainWindow::threadFinishedMesh()
 {
 	// surfaces
 	for (int s = 0; s != Model.Surfaces.length(); s++)
@@ -3964,7 +3957,8 @@ MainWindow::threadFinishedMesh()
 	this->callMakeTets();
 	this->FillNameCombos();
 
-	if( Model.Mesh ) {
+	if (Model.Mesh)
+	{
 		this->matsTitle->setHidden(false);
 		Model.drawTets = true;
 	}
@@ -3974,23 +3968,20 @@ MainWindow::threadFinishedMesh()
 	glWidget->updateGL();
 }
 
-void
-MainWindow::callMakeMats()
+void MainWindow::callMakeMats()
 {
 	Model.makeMats(this->material3dList->currentRow(), this->material3dListLocation->currentRow());
 	glWidget->update();
 }
 
-void
-MainWindow::callMakeTets()
+void MainWindow::callMakeTets()
 {
 	if (Model.Mesh)
 		Model.makeTets(this->xCutEnable->isChecked(), this->xCutSlider->value(), this->xDirChange->isChecked(), this->yCutEnable->isChecked(), this->yCutSlider->value(), this->yDirChange->isChecked(), this->zCutEnable->isChecked(), this->zCutSlider->value(), this->zDirChange->isChecked());
 	glWidget->update();
 }
 
-void
-MainWindow::updateInfo()
+void MainWindow::updateInfo()
 {
 	infoMinX->setText(QString::number(Model.min.x(), 'f', 0));
 	infoMaxX->setText(QString::number(Model.max.x(), 'f', 0));
@@ -4005,21 +3996,18 @@ MainWindow::updateInfo()
 		infoTetNumber->setText("no. Tetrahedrons: " + QString::number(Model.Mesh->numberoftetrahedra));
 	else
 		infoTetNumber->setText("no. Tetrahedrons: " + QString::number(0));
-
-
 }
 
-void
-MainWindow::replace(QString text)
+void MainWindow::replace(QString text)
 {
-	statusTE->moveCursor( QTextCursor::End, QTextCursor::MoveAnchor);
-	statusTE->moveCursor( QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
+	statusTE->moveCursor(QTextCursor::End, QTextCursor::MoveAnchor);
+	statusTE->moveCursor(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
 	statusTE->textCursor().insertText(text);
 }
 
 void MainWindow::printErrorMessage(QString message)
 {
-	const QColor& prevColor = statusTE->palette().text().color();
+	const QColor &prevColor = statusTE->palette().text().color();
 	statusTE->setTextColor("red");
 	statusTE->append(message);
 	statusTE->setTextColor(prevColor);
@@ -4030,10 +4018,10 @@ void MainWindow::onRotationCenterChange(int index)
 	bool isValid;
 	RotationMode mode;
 
-	QComboBox *comboBox = qobject_cast<QComboBox*>(sender());
+	QComboBox *comboBox = qobject_cast<QComboBox *>(sender());
 	mode = static_cast<RotationMode>(comboBox->itemData(index).toInt(&isValid));
 
-	if( isValid )
+	if (isValid)
 	{
 		QString itemText = comboBox->itemText(index);
 		QString msgText = "Rotation mode changed to <i>" + itemText + "</i>";
@@ -4046,6 +4034,6 @@ void MainWindow::onRotationCenterChange(int index)
 
 void MainWindow::onSensitivityChange()
 {
-	QSlider *slider = qobject_cast<QSlider*>(sender());
-	glWidget->zoomSensitivity = (double) slider->value() / 100.;
+	QSlider *slider = qobject_cast<QSlider *>(sender());
+	glWidget->zoomSensitivity = (double)slider->value() / 100.;
 }

@@ -3,7 +3,7 @@
  * Copyright (C) 2020
  *
  * Mauro Cacace (GFZ, cacace@gfz-potsdam.de),
- * Guido Blöcher (GFZ, bloech@gfz-potsdam.de),
+ * Guido Blï¿½cher (GFZ, bloech@gfz-potsdam.de),
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -45,7 +45,7 @@ QT_END_NAMESPACE
 class GLWidget;
 class C_Thread;
 
-class AnimatedButton: public QPushButton
+class AnimatedButton : public QPushButton
 {
 	Q_OBJECT
 
@@ -61,7 +61,7 @@ public slots:
 
 public:
 	explicit AnimatedButton(const QString &text, const QString &icon,
-	                        QWidget *parent = Q_NULLPTR);
+													QWidget *parent = Q_NULLPTR);
 	~AnimatedButton();
 };
 
@@ -173,6 +173,8 @@ private slots:
 	// slots to basic geometric operations
 	void preMesh();
 	void Mesh();
+	void readPLC();
+	void meshPLC();
 	void applyMaterialSelection();
 	void fillTable();
 	void onHighlightingChange();
@@ -227,6 +229,7 @@ private:
 	QMenu *fileMenuDelete;
 	QMenu *editMenu;
 	QMenu *editMenuMaterial;
+	QMenu *meshPLCMenu;
 	QMenu *viewMenu;
 	QMenu *helpMenu;
 	/*list of QActions*/
@@ -249,6 +252,8 @@ private:
 	QAction *addWellAct;
 	QAction *deleteSurfaceAct;
 	QAction *editRefinement;
+	QAction *importPLCAct;
+	QAction *meshPLCAct;
 	QAction *editInterpolation;
 	QAction *preMeshEditGradient;
 	QAction *editPreMesh;
@@ -384,7 +389,6 @@ private:
 	QGroupBox *interpolationGBox;
 	QGridLayout *interpolationGrid;
 	QComboBox *interpolationMethod;
-
 	/* Gradient */
 	QGroupBox *preMeshGradientGBox;
 	QGridLayout *preMeshGradientGrid;
@@ -393,7 +397,6 @@ private:
 	QGroupBox *meshGradientGBox;
 	QGridLayout *meshGradientGrid;
 	QDoubleSpinBox *meshGradientValue;
-
 	/*Selection Dock*/
 	QGroupBox *selectionGBox;
 	QGridLayout *selectionGrid;
@@ -405,7 +408,7 @@ private:
 	QLabel *selectionUnmark;
 	QLabel *selectionHole;
 
-	std::list<QPushButton*> selectionButtons;
+	std::list<QPushButton *> selectionButtons;
 	QPushButton *selectionMarkSingle;
 	QPushButton *selectionMarkMulti;
 	QPushButton *selectionMarkAll;
@@ -439,17 +442,17 @@ private:
 	QGroupBox *material1dGBox;
 	QGridLayout *material1dGrid;
 	QListWidget *material1dList;
-	QListWidgetItem  *material1dListItem;
+	QListWidgetItem *material1dListItem;
 	/*Material2D Dock*/
 	QGroupBox *material2dGBox;
 	QGridLayout *material2dGrid;
 	QListWidget *material2dList;
-	QListWidgetItem  *material2dListItem;
+	QListWidgetItem *material2dListItem;
 	/*Material3D Dock*/
 	QGroupBox *material3dGBox;
 	QGridLayout *material3dGrid;
 	QListWidget *material3dList;
-	QListWidgetItem  *material3dListItem;
+	QListWidgetItem *material3dListItem;
 	QListWidget *material3dListLocation;
 	QListWidgetItem *material3dListLocationItem;
 	QLabel *material3dAddRemoveMaterialLabel;
@@ -489,9 +492,7 @@ private:
 class C_Task : public QRunnable
 {
 public:
-	C_Task(MainWindow *mainWindow, const QString &Attribute, const int &Object1, const int &Object2, const int &currentStep, const int &totalSteps) :
-		mainWindow(mainWindow), Attribute_(Attribute), Object1_(Object1), Object2_(Object2), currentStep_(currentStep), totalSteps_(totalSteps)
-	{};
+	C_Task(MainWindow *mainWindow, const QString &Attribute, const int &Object1, const int &Object2, const int &currentStep, const int &totalSteps) : mainWindow(mainWindow), Attribute_(Attribute), Object1_(Object1), Object2_(Object2), currentStep_(currentStep), totalSteps_(totalSteps){};
 
 protected:
 	MainWindow *mainWindow;
@@ -512,16 +513,13 @@ class C_Thread : public QThread
 {
 	Q_OBJECT
 public:
-
-	C_Thread(MainWindow *mainWindow) : mainWindow(mainWindow)
-	{};
-	virtual ~C_Thread()
-	{};
+	C_Thread(MainWindow *mainWindow) : mainWindow(mainWindow){};
+	virtual ~C_Thread(){};
 	void run()
 	{
 		mainWindow->runThread(Attribute_);
 	}
-	void setAttribute(const QString & Attribute)
+	void setAttribute(const QString &Attribute)
 	{
 		Attribute_ = Attribute;
 	}
@@ -534,6 +532,4 @@ private:
 	QString Attribute_;
 };
 
-#endif	// _MAINWINDOW_H_
-
-
+#endif // _MAINWINDOW_H_
