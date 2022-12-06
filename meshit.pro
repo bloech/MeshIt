@@ -31,6 +31,8 @@ TARGET = MeshIt
 ICON = ./resources/images/app_logo.icns
 CONFIG += console
 CONFIG += warn_off
+# set it this option if you want to debug
+CONFIG+=debug
 QT += widgets opengl
 INCLUDEPATH += ./include
 
@@ -61,10 +63,16 @@ win32-msvc* {
 }
 
 if($$EXODUS_LIBMESH) {
-    INCLUDEPATH += . $$LIBMESH/include
-    INCLUDEPATH += . $$LIBMESH/include/libmesh
-    LIBS += -L$$LIBMESH/lib -lmesh_opt
-    QMAKE_LFLAGS += -Wl,-rpath,$$LIBMESH
+    INCLUDEPATH += .
+    INCLUDEPATH += $$LIBMESH/include
+    INCLUDEPATH += $$LIBMESH/include/libmesh
+    INCLUDEPATH += /usr/lib/x86_64-linux-gnu/openmpi/include/
+    INCLUDEPATH += /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi
+    LIBS += -L$$LIBMESH/lib -lmesh_opt -L/usr/lib/x86_64-linux-gnu/openmpi/lib
+    LIBS+= -lmpi
+    LIBS += -ldl
+    LIBS += -lpthread
+    QMAKE_LFLAGS += -Wl,--copy-dt-needed-entries,-rpath,$$LIBMESH
 }else:if($$EXODUS_LIBRARY) {
     INCLUDEPATH += . $$EXODUS_PATH/cbind/include
     LIBS += $$EXODUS_PATH/build/cbind/Release/exoIIv2c.lib
