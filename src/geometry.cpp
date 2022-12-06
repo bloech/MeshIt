@@ -6730,7 +6730,6 @@ C_Mesh3D::~C_Mesh3D()
 void C_PLC::readPLCFile()
 {
 	QFile file(fileName);
-	char *tmp_char = fileName.toLatin1().data();
 	if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
 		return;
 	QTextStream in(&file);
@@ -6738,7 +6737,7 @@ void C_PLC::readPLCFile()
 	while (!in.atEnd())
 	{
 		line = in.readLine().simplified();
-		if (line.startsWith("v"))
+		if (line.startsWith("v "))
 		{
 			C_Vector3D N;
 			N.setX(line.section(" ", 1, 1).toDouble());
@@ -6746,88 +6745,168 @@ void C_PLC::readPLCFile()
 			N.setZ(line.section(" ", 3, 4).toDouble());
 			Ns.append(N);
 		}
-		else if (line.startsWith("f"))
+		else if (line.startsWith("f "))
 		{
-			int counter = 0;
-			C_Triangle To;
-			int pos = line.section(" ", 1, 1).toInt() - 1;
-			To.Ns[0] = &Ns[pos];
-			To.Ns[0]->triID = counter++;
-			pos = line.section(" ", 2, 2).toInt() - 1;
-			To.Ns[1] = &Ns[pos];
-			To.Ns[1]->triID = counter++;
-			pos = line.section(" ", 3, 3).toInt() - 1;
-			To.Ns[2] = &Ns[pos];
-			To.Ns[2]->triID = counter++;
-			To.setNormalVector();
-			Ts.append(To);
+			C_Triangle T;
+			T.Ns[0] = &Ns[line.section(" ", 1, 1).toInt() - 1];
+			T.Ns[0]->triID = line.section(" ", 1, 1).toInt() - 1;
+			T.Ns[1] = &Ns[line.section(" ", 2, 2).toInt() - 1];
+			T.Ns[1]->triID = line.section(" ", 2, 2).toInt() - 1;
+			T.Ns[2] = &Ns[line.section(" ", 3, 3).toInt() - 1];
+			T.Ns[2]->triID = line.section(" ", 3, 3).toInt() - 1;
+			T.setNormalVector();
+			Ts.append(T);
 		}
 	}
-}
-
-void C_PLC::clearVertices()
-{
-	int dim = Ns.length();
-	double *x = new double[dim];
-	double *y = new double[dim];
-	double *z = new double[dim];
-	for (int s = 0; s != dim; s++)
-	{
-		x[s] = Ns[s].x();
-		y[s] = Ns[s].y();
-		z[s] = Ns[s].z();
-	}
-	quickSort(x, y, z, 0, dim - 1);
-	for (int s1 = 0; s1 != dim - 1; s1++)
-	{
-		if (x[s1] == x[s1 + 1])
-		{
-			if (y[s1] == y[s1 + 1])
-			{
-				if (z[s1] == z[s1 + 1])
-				{
-					for (int s2 = 0; s2 != Ns.length(); s2++)
-					{
-						if (x[s1] == Ns[s2].x())
-						{
-							if (y[s1] == Ns[s2].y())
-							{
-								if (z[s1] == Ns[s2].z())
-								{
-									this->Ns.removeAt(s2);
-									break;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	delete[] x;
-	delete[] y;
-	delete[] z;
-}
-
-void C_PLC::makeVertices()
-{
-	GLuint list = glGenLists(1);
-	glNewList(list, GL_COMPILE);
-	glDisable(GL_LIGHT0);
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, Cols.White);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, Cols.LightBlue);
-	glBegin(GL_POINTS);
-	for (int s = 0; s != Ns.length(); s++)
-		glVertex3f(Ns[s].x(), Ns[s].y(), Ns[s].z());
-	glEnd();
-
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, Cols.Grey);
-	glEnable(GL_LIGHT0);
-	glEndList();
-	listVertices = list;
 }
 
 void C_PLC::meshPLC(QString switches)
 {
-	bool tmp = true;
+	tetgenio in, out;
+	tetgenio::facet *f;
+	tetgenio::polygon *p;
+	// All indices start from 0
+	in.firstnumber = 0;
+	in.numberofpoints = this->Ns.length();
+	in.pointlist = new REAL[in.numberofpoints * 3];
+
+	for (int n = 0; n != this->Ns.length(); n++)
+	{
+		in.pointlist[n * 3 + 0] = this->Ns[n].x();
+		in.pointlist[n * 3 + 1] = this->Ns[n].y();
+		in.pointlist[n * 3 + 2] = this->Ns[n].z();
+	}
+
+	in.numberoffacets = this->Ts.length();
+	in.facetlist = new tetgenio::facet[in.numberoffacets];
+	in.facetmarkerlist = new int[in.numberoffacets];
+
+	for (int t = 0; t != this->Ts.length(); t++)
+	{
+		f = &in.facetlist[t];
+		f->numberofpolygons = 1;
+		f->polygonlist = new tetgenio::polygon[f->numberofpolygons];
+		f->numberofholes = 0;
+		f->holelist = NULL;
+		p = &f->polygonlist[0];
+		p->numberofvertices = 3;
+		p->vertexlist = new int[p->numberofvertices];
+		p->vertexlist[0] = this->Ts[t].Ns[0]->triID;
+		p->vertexlist[1] = this->Ts[t].Ns[1]->triID;
+		p->vertexlist[2] = this->Ts[t].Ns[2]->triID;
+	}
+
+	// Output the PLC to files 'barin.node' and 'barin.poly'.
+	if (QFileInfo(QDir::currentPath()).isWritable())
+	{
+		in.save_nodes(const_cast<char *>("in"));
+		in.save_edges(const_cast<char *>("in"));
+		in.save_poly(const_cast<char *>("in"));
+	}
+
+	// Tetrahedralize the PLC
+	QString Attr = switches;
+	try
+	{
+		tetrahedralize((char *)Attr.toLatin1().data(), &in, &out, NULL, NULL);
+	}
+	catch (int x)
+	{
+		printf("tetgen failed\n");
+		switch (x)
+		{
+		case 1: // Out of memory.
+			printf("Error:  Out of memory.\n");
+			emit PrintError("Out of memory.");
+			break;
+		case 2: // Encounter an internal error.
+			printf("Please report this bug to Hang.Si@wias-berlin.de. Include\n");
+			printf("  the message above, your input data set, and the exact\n");
+			printf("  command line you used to run this program, thank you.\n");
+			emit PrintError("An internal error has occured.");
+			break;
+		case 3:
+			printf("A self-intersection was detected. Program stopped.\n");
+			printf("Hint: use -d option to detect all self-intersections.\n");
+			emit PrintError("A self-intersection was detected.");
+			break;
+		case 4:
+			printf("A very small input feature size was detected. Program stopped.\n");
+			emit PrintError("A very small input feature size was detected.");
+			break;
+		case 5:
+			printf("Two very close input facets were detected. Program stopped.\n");
+			printf("Hint: use -Y option to avoid adding Steiner points in boundary.\n");
+			emit PrintError("Two very close input facets were detected.");
+			break;
+		case 10:
+			printf("An input error was detected. Program stopped.\n");
+			emit PrintError("Input error, please verify your input data.");
+			break;
+		} // switch (x)
+		return;
+	}
+
+	if (QFileInfo(QDir::currentPath()).isWritable())
+	{
+		out.save_nodes(const_cast<char *>("out"));
+		out.save_elements(const_cast<char *>("out"));
+		out.save_faces(const_cast<char *>("out"));
+		out.save_edges(const_cast<char *>("out"));
+		out.save_poly(const_cast<char *>("out"));
+		out.save_faces2smesh(const_cast<char *>("out"));
+	}
+
+	/*if (this->Mesh)
+	{
+			delete this->Mesh;
+			this->Mesh = 0;
+	}
+	this->Mesh = new C_Mesh3D;
+
+	Mesh->numberofpoints = out.numberofpoints;
+	for (int p = 0; p < out.numberofpoints; p++)
+	{
+			this->Mesh->pointlist.append(out.pointlist[p * 3 + 0]);
+			this->Mesh->pointlist.append(out.pointlist[p * 3 + 1]);
+			this->Mesh->pointlist.append(out.pointlist[p * 3 + 2]);
+	}
+
+	for (int e = 0; e < out.numberofedges; e++)
+	{
+			if (out.edgemarkerlist[e] >= 2 && out.edgemarkerlist[e] < (this->Polylines.length() + 2))
+			{ // currently "0" ad "1" are not working!!! bug of tetgen
+					this->Mesh->edgelist.append(out.edgelist[2 * e + 0]);
+					this->Mesh->edgelist.append(out.edgelist[2 * e + 1]);
+					this->Mesh->edgemarkerlist.append(out.edgemarkerlist[e] - 2); // currently "0" ad "1" are not working!!! bug of tetgen
+			}
+	}
+	Mesh->numberofedges = this->Mesh->edgemarkerlist.length();
+
+	for (int f = 0; f < out.numberoftrifaces; f++)
+	{
+			if (out.trifacemarkerlist[f] >= 0 && out.trifacemarkerlist[f] < this->Surfaces.length())
+			{
+					this->Mesh->trianglelist.append(out.trifacelist[3 * f + 0]);
+					this->Mesh->trianglelist.append(out.trifacelist[3 * f + 1]);
+					this->Mesh->trianglelist.append(out.trifacelist[3 * f + 2]);
+					this->Mesh->trianglemarkerlist.append(out.trifacemarkerlist[f]);
+			}
+	}
+	Mesh->numberoftriangles = this->Mesh->trianglemarkerlist.length();
+
+	for (int t = 0; t < out.numberoftetrahedra; t++)
+	{
+			if (out.tetrahedronattributelist[t] >= 0 && out.tetrahedronattributelist[t] < this->Mats.length())
+			{
+					this->Mesh->tetrahedronlist.append(out.tetrahedronlist[4 * t + 0]);
+					this->Mesh->tetrahedronlist.append(out.tetrahedronlist[4 * t + 1]);
+					this->Mesh->tetrahedronlist.append(out.tetrahedronlist[4 * t + 2]);
+					this->Mesh->tetrahedronlist.append(out.tetrahedronlist[4 * t + 3]);
+					this->Mesh->tetrahedronmarkerlist.append(out.tetrahedronattributelist[t]);
+			}
+	}
+	Mesh->numberoftetrahedra = this->Mesh->tetrahedronmarkerlist.length();
+
+	emit ModelInfoChanged();*/
 }
