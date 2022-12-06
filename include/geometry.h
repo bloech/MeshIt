@@ -650,8 +650,13 @@ public:
 	~C_Model();
 };
 
-class C_PLC
+class C_PLC: public QObject
 {
+    Q_OBJECT
+
+signals:
+    void PrintError(QString);
+
 public:
 	/// @brief Name of the file to import
 	QString fileName;
@@ -673,12 +678,6 @@ public:
 	/// @brief Perform the final 3D mesh on the PLC
 	/// @param switches tetgen input functions
 	void meshPLC(QString switches);
-
-	C_Colors Cols;
-	void clearVertices();
-	bool drawVertices;
-	void makeVertices();
-	GLuint listVertices;
 };
 
 #endif // _GEOMETRY_H_

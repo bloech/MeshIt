@@ -3576,19 +3576,6 @@ void MainWindow::readPLC()
 		PLC.readPLCFile();
 		emit progress_append(">...finished");
 	}
-	finishedReadPLC();
-}
-
-void MainWindow::finishedReadPLC()
-{
-	// here we need to discuss if and how we would like to show the import data structure fromthe PLC
-	glWidget->resetView();
-
-	PLC.clearVertices();
-	PLC.makeVertices();
-	// PLC.makeFaces();
-
-	glWidget->updateGL();
 }
 
 void MainWindow::meshPLC()
