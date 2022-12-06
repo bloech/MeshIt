@@ -650,21 +650,12 @@ public:
 	~C_Model();
 };
 
-<<<<<<< HEAD
 class C_PLC : public QObject
 {
 	Q_OBJECT
 
 signals:
 	void PrintError(QString);
-=======
-class C_PLC: public QObject
-{
-    Q_OBJECT
-
-signals:
-    void PrintError(QString);
->>>>>>> 0f66d14e58f8b34f68dd8559c728b92ccddf2bb4
 
 public:
 	/// @brief Name of the file to import
