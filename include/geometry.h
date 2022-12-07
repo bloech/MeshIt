@@ -668,6 +668,8 @@ public:
 	QList<C_Triangle> Ts;
 	/// @brief Pointer to an instance of the class C_Mesh3D to store and output the final 3D mesh
 	C_Mesh3D *Mesh;
+	/// @brief member class to export the final mesh to paraview
+	C_VTU VTU;
 	/// @brief basic constructor and destructor
 	C_PLC() {}
 	~C_PLC() {}
@@ -678,6 +680,7 @@ public:
 	/// @brief Perform the final 3D mesh on the PLC
 	/// @param switches tetgen input functions
 	void meshPLC(QString switches);
+	void exportVTU();
 };
 
 #endif // _GEOMETRY_H_

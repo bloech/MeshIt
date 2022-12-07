@@ -6795,16 +6795,15 @@ void C_PLC::meshPLC(QString switches)
 		p->vertexlist[0] = this->Ts[t].Ns[0]->triID;
 		p->vertexlist[1] = this->Ts[t].Ns[1]->triID;
 		p->vertexlist[2] = this->Ts[t].Ns[2]->triID;
+		in.facetmarkerlist[t] = t;
 	}
-
-	// Output the PLC to files 'barin.node' and 'barin.poly'.
+	// Save the input files for tetgen standards
 	if (QFileInfo(QDir::currentPath()).isWritable())
 	{
-		in.save_nodes(const_cast<char *>("in"));
-		in.save_edges(const_cast<char *>("in"));
-		in.save_poly(const_cast<char *>("in"));
+		in.save_nodes(const_cast<char *>("plc_in"));
+		in.save_edges(const_cast<char *>("plc_in"));
+		in.save_poly(const_cast<char *>("plc_in"));
 	}
-
 	// Tetrahedralize the PLC
 	QString Attr = switches;
 	try
@@ -6847,62 +6846,107 @@ void C_PLC::meshPLC(QString switches)
 		} // switch (x)
 		return;
 	}
-
+	// sabe tetgen standard output files
 	if (QFileInfo(QDir::currentPath()).isWritable())
 	{
-		out.save_nodes(const_cast<char *>("out"));
-		out.save_elements(const_cast<char *>("out"));
-		out.save_faces(const_cast<char *>("out"));
-		out.save_edges(const_cast<char *>("out"));
-		out.save_poly(const_cast<char *>("out"));
-		out.save_faces2smesh(const_cast<char *>("out"));
+		out.save_nodes(const_cast<char *>("plc_out"));
+		out.save_elements(const_cast<char *>("plc_out"));
+		out.save_faces(const_cast<char *>("plc_out"));
+		out.save_edges(const_cast<char *>("plc_out"));
+		out.save_poly(const_cast<char *>("plc_out"));
+		out.save_faces2smesh(const_cast<char *>("plc_out"));
 	}
-
-	/*if (this->Mesh)
+	// save all in the Mesh --> for exporting
+	if (this->Mesh)
 	{
-			delete this->Mesh;
-			this->Mesh = 0;
+		delete this->Mesh;
+		this->Mesh = 0;
 	}
 	this->Mesh = new C_Mesh3D;
+	// save points
 	Mesh->numberofpoints = out.numberofpoints;
 	for (int p = 0; p < out.numberofpoints; p++)
 	{
-			this->Mesh->pointlist.append(out.pointlist[p * 3 + 0]);
-			this->Mesh->pointlist.append(out.pointlist[p * 3 + 1]);
-			this->Mesh->pointlist.append(out.pointlist[p * 3 + 2]);
+		this->Mesh->pointlist.append(out.pointlist[p * 3 + 0]);
+		this->Mesh->pointlist.append(out.pointlist[p * 3 + 1]);
+		this->Mesh->pointlist.append(out.pointlist[p * 3 + 2]);
 	}
-	for (int e = 0; e < out.numberofedges; e++)
-	{
-			if (out.edgemarkerlist[e] >= 2 && out.edgemarkerlist[e] < (this->Polylines.length() + 2))
-			{ // currently "0" ad "1" are not working!!! bug of tetgen
-					this->Mesh->edgelist.append(out.edgelist[2 * e + 0]);
-					this->Mesh->edgelist.append(out.edgelist[2 * e + 1]);
-					this->Mesh->edgemarkerlist.append(out.edgemarkerlist[e] - 2); // currently "0" ad "1" are not working!!! bug of tetgen
-			}
-	}
-	Mesh->numberofedges = this->Mesh->edgemarkerlist.length();
+	// we do not need to save any triangles as long as we do not use those to save boundary sets
+	/*
 	for (int f = 0; f < out.numberoftrifaces; f++)
 	{
-			if (out.trifacemarkerlist[f] >= 0 && out.trifacemarkerlist[f] < this->Surfaces.length())
-			{
-					this->Mesh->trianglelist.append(out.trifacelist[3 * f + 0]);
-					this->Mesh->trianglelist.append(out.trifacelist[3 * f + 1]);
-					this->Mesh->trianglelist.append(out.trifacelist[3 * f + 2]);
-					this->Mesh->trianglemarkerlist.append(out.trifacemarkerlist[f]);
-			}
+		if (out.trifacemarkerlist[f] >= 0)
+		{
+			this->Mesh->trianglelist.append(out.trifacelist[3 * f + 0]);
+			this->Mesh->trianglelist.append(out.trifacelist[3 * f + 1]);
+			this->Mesh->trianglelist.append(out.trifacelist[3 * f + 2]);
+			this->Mesh->trianglemarkerlist.append(out.trifacemarkerlist[f]);
+		}
 	}
 	Mesh->numberoftriangles = this->Mesh->trianglemarkerlist.length();
+	*/
+	// save tets
 	for (int t = 0; t < out.numberoftetrahedra; t++)
 	{
-			if (out.tetrahedronattributelist[t] >= 0 && out.tetrahedronattributelist[t] < this->Mats.length())
-			{
-					this->Mesh->tetrahedronlist.append(out.tetrahedronlist[4 * t + 0]);
-					this->Mesh->tetrahedronlist.append(out.tetrahedronlist[4 * t + 1]);
-					this->Mesh->tetrahedronlist.append(out.tetrahedronlist[4 * t + 2]);
-					this->Mesh->tetrahedronlist.append(out.tetrahedronlist[4 * t + 3]);
-					this->Mesh->tetrahedronmarkerlist.append(out.tetrahedronattributelist[t]);
-			}
+		if (out.tetrahedronattributelist[t] >= 0)
+		{
+			this->Mesh->tetrahedronlist.append(out.tetrahedronlist[4 * t + 0]);
+			this->Mesh->tetrahedronlist.append(out.tetrahedronlist[4 * t + 1]);
+			this->Mesh->tetrahedronlist.append(out.tetrahedronlist[4 * t + 2]);
+			this->Mesh->tetrahedronlist.append(out.tetrahedronlist[4 * t + 3]);
+			this->Mesh->tetrahedronmarkerlist.append(out.tetrahedronattributelist[t]);
+		}
 	}
 	Mesh->numberoftetrahedra = this->Mesh->tetrahedronmarkerlist.length();
-	emit ModelInfoChanged();*/
+	// easy export routine
+	// we need to add a dedicated action (?) to decide the type of export
+	exportVTU();
 }
+
+void C_PLC::exportVTU()
+{
+	long offset = 0;
+
+	this->VTU.clear();
+	this->VTU.NumberOfPoints = this->Mesh->numberofpoints;
+	this->VTU.NumberOfCells = this->Mesh->numberoftetrahedra; //+ this->Mesh->numberoftriangles + this->Mesh->numberofedges;
+
+	for (int p = 0; p != this->Mesh->numberofpoints; p++)
+	{
+		this->VTU.Points.append(C_Vector3D(this->Mesh->pointlist[p * 3 + 0], this->Mesh->pointlist[p * 3 + 1], this->Mesh->pointlist[p * 3 + 2]));
+		this->VTU.pointData.append(0);
+	}
+	for (int t = 0; t != this->Mesh->numberoftetrahedra; t++)
+	{
+		this->VTU.connectivity.append(this->Mesh->tetrahedronlist[t * 4 + 0]);
+		this->VTU.connectivity.append(this->Mesh->tetrahedronlist[t * 4 + 1]);
+		this->VTU.connectivity.append(this->Mesh->tetrahedronlist[t * 4 + 2]);
+		this->VTU.connectivity.append(this->Mesh->tetrahedronlist[t * 4 + 3]);
+		offset += 4;
+		this->VTU.offsets.append(offset);
+		this->VTU.types.append(10);
+		this->VTU.matType.append(this->Mesh->tetrahedronmarkerlist[t]);
+	}
+	/*
+	for (int f = 0; f != this->Mesh->numberoftriangles_export; f++)
+	{
+		this->VTU.connectivity.append(this->Mesh->trianglelist_export[f * 3 + 0]);
+		this->VTU.connectivity.append(this->Mesh->trianglelist_export[f * 3 + 1]);
+		this->VTU.connectivity.append(this->Mesh->trianglelist_export[f * 3 + 2]);
+		offset += 3;
+		this->VTU.offsets.append(offset);
+		this->VTU.types.append(5);
+		this->VTU.matType.append(this->Mesh->trianglemarkerlist_export[f]);
+	}
+	for (int e = 0; e != this->Mesh->numberofedges_export; e++)
+	{
+		this->VTU.connectivity.append(this->Mesh->edgelist_export[e * 2 + 0]);
+		this->VTU.connectivity.append(this->Mesh->edgelist_export[e * 2 + 1]);
+		offset += 2;
+		this->VTU.offsets.append(offset);
+		this->VTU.types.append(3);
+		this->VTU.matType.append(this->Mesh->edgemarkerlist_export[e]);
+	}*/
+	QString filename = "test_2_vtu.vtu";
+	this->VTU.write(filename);
+};
