@@ -125,6 +125,8 @@
 
 #include "tetgen.h"            // Defines the symbol REAL (float or double).
 
+#define REAL double
+
 #ifdef USE_CGAL_PREDICATES
   #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
   typedef CGAL::Exact_predicates_inexact_constructions_kernel cgalEpick;

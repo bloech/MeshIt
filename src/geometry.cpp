@@ -3613,7 +3613,7 @@ void C_Model::EXODUS_element(C_Exodus *exo)
 	}
 }
 
-/*void C_Model::EXODUS_nodes(C_Exodus *exo)
+void C_Model::EXODUS_nodes(C_Exodus *exo)
 {
 	double x_trans = (this->min.x() + this->max.x()) * 0.5;
 	double y_trans = (this->min.y() + this->max.y()) * 0.5;
@@ -3631,8 +3631,8 @@ void C_Model::EXODUS_element(C_Exodus *exo)
 		exo->y[n] = tmp_y;
 		exo->node_num_map[n] = n + 1;
 	}
-}*/
-
+}
+/*
 void C_Model::EXODUS_nodes(C_Exodus *exo)
 {
 	for (int n = 0; n != exo->num_nodes; n++)
@@ -3643,7 +3643,7 @@ void C_Model::EXODUS_nodes(C_Exodus *exo)
 		exo->node_num_map[n] = n + 1;
 	}
 }
-
+*/
 
 #endif
 

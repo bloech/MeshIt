@@ -36,6 +36,9 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
+#define REAL double
+
+
 bool tetgenio::load_node_call(FILE* infile, int markers, int uvflag, 
                               char* infilename)
 {
