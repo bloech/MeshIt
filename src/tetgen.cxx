@@ -37,6 +37,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #define REAL double
+// this was defined to resolve the dublicate error
 
 bool tetgenio::load_node_call(FILE* infile, int markers, int uvflag, 
                               char* infilename)
