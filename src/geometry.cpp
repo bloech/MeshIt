@@ -3615,22 +3615,32 @@ void C_Model::EXODUS_element(C_Exodus *exo)
 
 void C_Model::EXODUS_nodes(C_Exodus *exo)
 {
-	double x_trans = (this->min.x() + this->max.x()) * 0.5;
-	double y_trans = (this->min.y() + this->max.y()) * 0.5;
-	double angle = double(this->ExportRotationAngle) / double(180) * MY_PI;
-	double tmp_x;
-	double tmp_y;
-	for (int n = 0; n != exo->num_nodes; n++)
-	{
-		exo->x[n] = Mesh->pointlist[n * 3 + 0] - x_trans;
-		exo->y[n] = Mesh->pointlist[n * 3 + 1] - y_trans;
-		exo->z[n] = Mesh->pointlist[n * 3 + 2];
-		tmp_x = exo->x[n] * cos(angle) - exo->y[n] * sin(angle);
-		tmp_y = exo->x[n] * sin(angle) + exo->y[n] * cos(angle);
-		exo->x[n] = tmp_x;
-		exo->y[n] = tmp_y;
-		exo->node_num_map[n] = n + 1;
-	}
+    if (this->ExportRotationAngle != 0.0){
+        double x_trans = (this->min.x() + this->max.x()) * 0.5;
+        double y_trans = (this->min.y() + this->max.y()) * 0.5;
+        double angle = double(this->ExportRotationAngle) / double(180) * MY_PI;
+        double tmp_x;
+        double tmp_y;
+        for (int n = 0; n != exo->num_nodes; n++)
+        {
+            exo->x[n] = Mesh->pointlist[n * 3 + 0] - x_trans;
+            exo->y[n] = Mesh->pointlist[n * 3 + 1] - y_trans;
+            exo->z[n] = Mesh->pointlist[n * 3 + 2];
+            tmp_x = exo->x[n] * cos(angle) - exo->y[n] * sin(angle);
+            tmp_y = exo->x[n] * sin(angle) + exo->y[n] * cos(angle);
+            exo->x[n] = tmp_x;
+            exo->y[n] = tmp_y;
+            exo->node_num_map[n] = n + 1;
+        }
+    }else{
+        for (int n = 0; n != exo->num_nodes; n++)
+        {
+            exo->x[n] = Mesh->pointlist[n * 3 + 0];
+            exo->y[n] = Mesh->pointlist[n * 3 + 1];
+            exo->z[n] = Mesh->pointlist[n * 3 + 2];
+            exo->node_num_map[n] = n + 1;
+        }
+    }
 }
 /*
 void C_Model::EXODUS_nodes(C_Exodus *exo)

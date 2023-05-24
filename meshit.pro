@@ -63,6 +63,7 @@ win32-msvc* {
 if($$EXODUS_LIBMESH) {
     INCLUDEPATH += . $$LIBMESH/include
     INCLUDEPATH += . $$LIBMESH/include/libmesh
+    INCLUDEPATH += . $$LIBMESH/../include
     LIBS += -L$$LIBMESH/lib -lmesh_opt
     QMAKE_LFLAGS += -Wl,-rpath,$$LIBMESH
 }else:if($$EXODUS_LIBRARY) {

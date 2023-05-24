@@ -15,7 +15,6 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
-
 #ifndef tetgenH
 #define tetgenH
 
@@ -29,7 +28,7 @@
 //   Alternatively, one can use the single precision (32 bit) 'float' if the
 //   memory is limited.
 
-// #define double double  // #define double float
+// #define REAL double  // #define double float
 
 // Maximum number of characters in a file name (including the null).
 
