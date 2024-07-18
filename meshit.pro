@@ -34,11 +34,16 @@ CONFIG += warn_off
 QT += widgets opengl
 INCLUDEPATH += ./include
 
-# Include system-dependent variables.
-!include(meshit.pri) {
-    EXODUS_LIBMESH = false
-    EXODUS_LIBRARY = false
-}
+# Set either EXODUS_LIBMESH (suggested for Linux, Mac) or EXODUS_LIBRARY (suggested for Windows) to true if you want the exodus export option.
+# If EXODUS_LIBMESH is true, insert below the path to the root directory of a libmesh installation.
+EXODUS_LIBMESH = false
+LIBMESH = <path-to-libmesh>
+
+# If EXODUS_LIBRARY is true, insert below the path to the root directory of the exodusII library and netcdf.
+EXODUS_LIBRARY = true
+EXODUS_PATH = C:\msys64\ucrt64
+
+
 
 # Mac
 macx {
@@ -67,10 +72,8 @@ if($$EXODUS_LIBMESH) {
     LIBS += -L$$LIBMESH/lib -lmesh_opt
     QMAKE_LFLAGS += -Wl,-rpath,$$LIBMESH
 }else:if($$EXODUS_LIBRARY) {
-    INCLUDEPATH += . $$EXODUS_PATH/cbind/include
-    LIBS += $$EXODUS_PATH/build/cbind/Release/exoIIv2c.lib
-    INCLUDEPATH += . $$NETCDF_PATH/include
-    LIBS += -L$$NETCDF_PATH/lib -lnetcdf
+    INCLUDEPATH += . $$EXODUS_PATH/include
+    LIBS += $$EXODUS_PATH/bin/libexodus.dll
 }else{
     DEFINES += NOEXODUS
 }

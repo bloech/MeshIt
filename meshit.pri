@@ -38,5 +38,4 @@ EXODUS_LIBRARY = true
 LIBMESH = <path-to-libmesh>
 
 # If EXODUS_LIBRARY is true, insert below the path to the root directory of the exodusII library and netcdf.
-NETCDF_PATH = <path-to-netcdf>
-EXODUS_PATH = <path-to-exodusII>
+EXODUS_PATH = C:\msys64\ucrt64
