@@ -22,6 +22,15 @@ For exporting the exodus file format used by Moose (https://github.com/idaholab/
 *	For Linux and Mac we suggest to link the static exodus library which comes along with libMesh (https://libmesh.github.io/) provided by Moose framework installation:
 	*	Set the EXODUS_LIBMESH variable to `true`
 	*	Define the path to the root directory of the `libmesh` installation using variable LIBMESH
+    *   Alternatively, ExodusII can be installed on Ubuntu/Debian via the system package manager:
+        ```bash
+        sudo apt install libexodusii-dev
+        ```
+        Then compile MeshIt with:
+        ```bash
+        qmake meshit.pro
+        make -j$(nproc)
+        ```
 
 *	For Windows you have to link the dynamic exodus library which will be provided by the package mingw-w64-ucrt-x86_64-libexodus provided by the MSYS2 (https://www.msys2.org/) installation:
 	*	Set the EXODUS_LIBRARY variable to `true`

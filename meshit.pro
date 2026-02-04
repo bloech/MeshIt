@@ -72,8 +72,18 @@ if($$EXODUS_LIBMESH) {
     LIBS += -L$$LIBMESH/lib -lmesh_opt
     QMAKE_LFLAGS += -Wl,-rpath,$$LIBMESH
 }else:if($$EXODUS_LIBRARY) {
-    INCLUDEPATH += . $$EXODUS_PATH/include
-    LIBS += $$EXODUS_PATH/bin/libexodus.dll
+    unix:!macx {
+        LIBS += -lexoIIv2c
+    }
+
+    win32-g++ {
+        INCLUDEPATH += . $$EXODUS_PATH/include
+        LIBS += $$EXODUS_PATH/bin/libexodus.dll
+    }
+    win32-msvc* {
+        INCLUDEPATH += . $$EXODUS_PATH/include
+        LIBS += $$EXODUS_PATH/bin/libexodus.dll
+    }
 }else{
     DEFINES += NOEXODUS
 }
